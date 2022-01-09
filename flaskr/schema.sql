@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS utilisateurs;
+
+CREATE TABLE utilisateurs (
+  username TEXT UNIQUE NOT NULL,
+  IP INT UNSIGNED,
+  PORT INT UNSIGNED
+);
