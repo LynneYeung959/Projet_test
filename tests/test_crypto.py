@@ -6,7 +6,7 @@ sys.path.append("../client")
 from crypto import *
 
 class TestCrypto(unittest.TestCase):
-	'''
+	
 	# Tests sur la génération des clés privées et publiques
 	
 	def test_minimum_key_size(self):
@@ -54,7 +54,7 @@ class TestCrypto(unittest.TestCase):
 		self.assertNotEqual(encrypt_message(generate_keys(1024)[1], "a"), "a")
 		self.assertNotEqual(encrypt_message(generate_keys(2048)[1], "message"), "message")
 		self.assertNotEqual(encrypt_message(generate_keys(2048)[1], "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"), "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@")
-	'''
+	
 	# Tests sur le déchiffrement d'un message
 
 	def test_decryption_message(self):
