@@ -3,7 +3,9 @@
 ## Nos principes 
 
 KISS : Keep It Simple Stupid
+
 DRY : Don't Repeat Yourself
+
 YAGNI : You Aren't Gonna Need It
 
 ## Syntaxe commits
