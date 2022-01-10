@@ -6,7 +6,7 @@ sys.path.append("../client")
 from crypto import *
 
 class TestCrypto(unittest.TestCase):
-
+	'''
 	# Tests sur la génération des clés privées et publiques
 	
 	def test_minimum_key_size(self):
@@ -54,6 +54,27 @@ class TestCrypto(unittest.TestCase):
 		self.assertNotEqual(encrypt_message(generate_keys(1024)[1], "a"), "a")
 		self.assertNotEqual(encrypt_message(generate_keys(2048)[1], "message"), "message")
 		self.assertNotEqual(encrypt_message(generate_keys(2048)[1], "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"), "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@")
+	'''
+	# Tests sur le déchiffrement d'un message
+
+	def test_decryption_message(self):
+		# Vérification du format du message à déchiffrer
+		keys = generate_keys(2048)
+		self.assertEqual(decrypt_message(keys[0], ""), None)
+		self.assertEqual(decrypt_message(keys[0], "Fake_crypt_msg:CBVscPeuYkXW4/jjhinp"), None)
+		self.assertIsInstance(decrypt_message(keys[0], encrypt_message(keys[1], "A")), str)
+
+	def test_decryption_key(self):
+		# Vérification de la clé
+		self.assertEqual(decrypt_message("Fake key:CBVscPeuYkXW4/jjhinp", encrypt_message(keys[1], "A")), None)
+		self.assertIsInstance(decrypt_message(keys[0], encrypt_message(keys[1], "A")), str)
+
+	def test_decryption_content(self):
+		# Vérification du déchiffrement
+		keys = generate_keys(2048)
+		self.assertEqual(decrypt_message(keys[0], encrypt_message(keys[1], "a")), "a")
+		self.assertEqual(decrypt_message(keys[0], encrypt_message(keys[1], "Hello world !")), "Hello world !")
+		self.assertEqual(decrypt_message(keys[0], encrypt_message(keys[1], "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"), "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"))
 
 if __name__ == '__main__':
 	unittest.main()
