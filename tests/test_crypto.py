@@ -45,8 +45,7 @@ class TestCrypto(unittest.TestCase):
 		self.assertIsInstance(encrypt_message(keys[1], "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"), str)
 		
 		# Vérification de la clé
-		fake_key = RSA.importKey("Fake key:CBVscPeuYkXW4/jjhinp")
-		self.assertEqual(encrypt_message(fake_key, "message"), None)
+		self.assertEqual(encrypt_message("Fake key:CBVscPeuYkXW4/jjhinp", "message"), None)
 		self.assertIsInstance(encrypt_message(generate_keys(2048)[1], "message"), str)
 
 		# Vérification du chiffrement (différent du message d'origine)
