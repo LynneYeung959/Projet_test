@@ -8,7 +8,7 @@ from crypto import *
 class TestCrypto(unittest.TestCase):
 
 	# Tests sur la génération des clés privées et publiques
-
+	
 	def test_minimum_key_size(self):
 		# Taille minium de 1024 bits
 		self.assertEqual(generate_keys(512), None)
@@ -34,7 +34,25 @@ class TestCrypto(unittest.TestCase):
 		self.assertNotEqual(generate_keys(2048)[1], generate_keys(2048)[1])
 		keys = generate_keys(2048)
 		self.assertNotEqual(keys[0], keys[1])
+	
+	# Tests sur le chiffrement d'un message
+
+	def test_encryption(self):
+		# Vérification du format du message à chiffrer
+		keys = generate_keys(2048)
+		self.assertEqual(encrypt_message(keys[1], ""), None)
+		self.assertIsInstance(encrypt_message(keys[1], "A"), str)
+		self.assertIsInstance(encrypt_message(keys[1], "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"), str)
 		
+		# Vérification de la clé
+		fake_key = RSA.importKey("Fake key:CBVscPeuYkXW4/jjhinp")
+		self.assertEqual(encrypt_message(fake_key, "message"), None)
+		self.assertIsInstance(encrypt_message(generate_keys(2048)[1], "message"), str)
+
+		# Vérification du chiffrement (différent du message d'origine)
+		self.assertNotEqual(encrypt_message(generate_keys(1024)[1], "a"), "a")
+		self.assertNotEqual(encrypt_message(generate_keys(2048)[1], "message"), "message")
+		self.assertNotEqual(encrypt_message(generate_keys(2048)[1], "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"), "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@")
 
 if __name__ == '__main__':
 	unittest.main()
