@@ -24,3 +24,6 @@ def generate_keys(key_size):
 		public_key_str  = public_key.exportKey().decode()
 
 		return private_key_str, public_key_str
+
+def encrypt_message(public_key, message):
+	pass
