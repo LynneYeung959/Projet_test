@@ -47,3 +47,6 @@ def encrypt_message(public_key, message):
 		msg_crypt_str = msg_crypt.decode()
 		
 		return msg_crypt_str
+
+def decrypt_message(private_key, crypt_message):
+	pass
