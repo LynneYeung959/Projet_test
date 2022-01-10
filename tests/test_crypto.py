@@ -37,17 +37,19 @@ class TestCrypto(unittest.TestCase):
 	
 	# Tests sur le chiffrement d'un message
 
-	def test_encryption(self):
+	def test_encryption_message(self):
 		# Vérification du format du message à chiffrer
 		keys = generate_keys(2048)
 		self.assertEqual(encrypt_message(keys[1], ""), None)
 		self.assertIsInstance(encrypt_message(keys[1], "A"), str)
 		self.assertIsInstance(encrypt_message(keys[1], "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"), str)
-		
+	
+	def test_encryption_key(self):
 		# Vérification de la clé
 		self.assertEqual(encrypt_message("Fake key:CBVscPeuYkXW4/jjhinp", "message"), None)
 		self.assertIsInstance(encrypt_message(generate_keys(2048)[1], "message"), str)
 
+	def test_encryption_content(self):
 		# Vérification du chiffrement (différent du message d'origine)
 		self.assertNotEqual(encrypt_message(generate_keys(1024)[1], "a"), "a")
 		self.assertNotEqual(encrypt_message(generate_keys(2048)[1], "message"), "message")

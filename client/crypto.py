@@ -42,6 +42,7 @@ def encrypt_message(public_key, message):
 
 		encryptor = PKCS1_OAEP.new(key)
 		msg_crypt = base64.b64encode(encryptor.encrypt(message.encode()))
+		
 		# Conversion au format texte (type string)
 		msg_crypt_str = msg_crypt.decode()
 		
