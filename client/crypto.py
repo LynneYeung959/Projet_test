@@ -26,4 +26,23 @@ def generate_keys(key_size):
 		return private_key_str, public_key_str
 
 def encrypt_message(public_key, message):
-	pass
+	"""
+	Chiffrement d'un message à partir d'une clé publique
+	Retourne le message crypté au format string
+	"""
+	if message == "":
+		return None
+	else:
+		# Conversion de la clé publique de string vers RSA_key_format
+		# lorsque celle-ci est valide
+		try:
+			key = RSA.importKey(public_key)
+		except ValueError:
+			return None
+
+		encryptor = PKCS1_OAEP.new(key)
+		msg_crypt = base64.b64encode(encryptor.encrypt(message.encode()))
+		# Conversion au format texte (type string)
+		msg_crypt_str = msg_crypt.decode()
+		
+		return msg_crypt_str
