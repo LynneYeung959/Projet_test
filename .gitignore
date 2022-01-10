@@ -1,0 +1,15 @@
+*.egg-info/
+__pycache__/
+.pytest_cache/
+
+build/
+dist/
+htmlcov/
+
+instance/     # from flask
+
+venv/
+
+*.pyc
+.coverage
+
