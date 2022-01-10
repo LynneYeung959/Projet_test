@@ -8,6 +8,10 @@ class TestUserSrv(unittest.TestCase):
 
     test_db = "test_db.db"
 
+    def test_checkUsername(self):
+        self.assertFalse(db.checkUsername("")) # username empty 
+        self.assertTrue(db.checkUsername("log")  
+
     def test_addUser(self):
         self.assertFalse(db.addUser(self.test_db,"","0.0.0.0",80)) # username empty 
         self.assertFalse(db.addUser(self.test_db,"log","0.0.0",80)) # bad IP
