@@ -66,6 +66,7 @@ class TestCrypto(unittest.TestCase):
 
 	def test_decryption_key(self):
 		# Vérification de la clé
+		keys = generate_keys(2048)
 		self.assertEqual(decrypt_message("Fake key:CBVscPeuYkXW4/jjhinp", encrypt_message(keys[1], "A")), None)
 		self.assertIsInstance(decrypt_message(keys[0], encrypt_message(keys[1], "A")), str)
 
@@ -74,7 +75,7 @@ class TestCrypto(unittest.TestCase):
 		keys = generate_keys(2048)
 		self.assertEqual(decrypt_message(keys[0], encrypt_message(keys[1], "a")), "a")
 		self.assertEqual(decrypt_message(keys[0], encrypt_message(keys[1], "Hello world !")), "Hello world !")
-		self.assertEqual(decrypt_message(keys[0], encrypt_message(keys[1], "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"), "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"))
+		self.assertEqual(decrypt_message(keys[0], encrypt_message(keys[1], "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@")), "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@")
 
 if __name__ == '__main__':
 	unittest.main()

@@ -49,4 +49,28 @@ def encrypt_message(public_key, message):
 		return msg_crypt_str
 
 def decrypt_message(private_key, crypt_message):
-	pass
+	"""
+	Déchiffrement d'un message à partir d'une clé privée
+	Retourne le message décrypté au format string
+	"""
+	if crypt_message == "":
+		return None
+	else:
+		# Conversion de la clé publique de string vers RSA_key_format
+		# lorsque celle-ci est valide
+		try:
+			key = RSA.importKey(private_key)
+		except ValueError:
+			return None
+
+		decryptor = PKCS1_OAEP.new(key)
+
+		try:
+			message = decryptor.decrypt(base64.b64decode(crypt_message.encode()))
+		except ValueError:
+			return None
+
+		# Conversion au format texte (type string)
+		message_str = message.decode()
+		
+		return message_str
