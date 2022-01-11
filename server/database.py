@@ -57,9 +57,9 @@ def is_port_valid(port_nb):
     """
     return (port_nb >= 1024) and (port_nb <= 65535)
 
-def add_user(cursor, username, password, ip, port)
+def add_user(cursor, username, password, ip, port):
     pass
-    
+
 '''
 def get_db():
     db = sqlite3.connect('users.db')
