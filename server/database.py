@@ -2,6 +2,7 @@ import logging
 import sqlite3
 import re
 import socket
+from hashlib import md5
 
 # Regular expression
 username_regex = re.compile("([A-Za-z0-9]){3,}")
@@ -66,7 +67,9 @@ def is_user_registered(cursor, username):
     return len(cursor.fetchall()) > 0 # La liste est vide si username n'est pas trouvé
 
 def user_login(cursor, username, password):
-    pass
+    md5_pass = md5(password.encode())
+    cursor.execute("SELECT username FROM `Users` WHERE username=? AND password=?", [username, md5_pass.digest()])
+    return len(cursor.fetchall()) > 0
 
 '''
 def get_db():
