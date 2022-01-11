@@ -6,7 +6,6 @@ class TestDatabase(unittest.TestCase):
 
     # Test de validation des champs entrés par l'utilisateur :
 
-
     def test_is_username_valid(self):
         # Vérification du username
         self.assertTrue(is_username_valid("abcdefghijklmnopqrstuvwxyz1234567890"))
@@ -18,6 +17,19 @@ class TestDatabase(unittest.TestCase):
         self.assertFalse(is_username_valid("_Noobmaster69_"))
         self.assertFalse(is_username_valid("HtmlGoes<br>"))
         self.assertFalse(is_username_valid("\u00C8re"))  # \u00C8 = È
+
+    def test_is_password_valid(self):
+        # Vérification du password
+        self.assertTrue(is_password_valid("Abcdef#1"))
+        self.assertTrue(is_password_valid("SecretPa§w0rδ"))
+        self.assertTrue(is_password_valid("\u00C8ÉE{_n00b"))  # \u00C8 = È
+        self.assertTrue(is_password_valid("1PassSecretδ"))
+
+        self.assertFalse(is_password_valid("Abc#1"))
+        self.assertFalse(is_password_valid("Abc123"))
+        self.assertFalse(is_password_valid("Abc-#"))
+        self.assertFalse(is_password_valid("HtmlGoes<br>"))
+        self.assertFalse(is_password_valid("SPEACSRSEWTO"))
 '''
 	def test_checkUsername(self):
         self.assertFalse(database.check_username("")) # username empty 
