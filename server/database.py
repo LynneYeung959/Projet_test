@@ -35,10 +35,8 @@ def is_ip_valid(ip_address):
     Ainsi qu'une comparaison avec les expressions régulières
     Retourne un booléen selon la validité
     """
-
     if(re.search(ip_regex, ip_address)):
-        ip_format = True
-         
+        ip_format = True 
     else:
         ip_format = False
 
@@ -49,6 +47,15 @@ def is_ip_valid(ip_address):
         legal_ip = False
 
     return ip_format and legal_ip
+
+def is_port_valid(port_nb):
+    """
+    Vérifie si le est au bon format :
+    Le numéro de port doit être compris
+    entre 1024 et 65535
+    Retourne un booléen selon la validité
+    """
+    return (port_nb >= 1024) and (port_nb <= 65535)
 
 def get_db():
     db = sqlite3.connect('users.db')
