@@ -49,6 +49,21 @@ def insert_user_into_db(username, ip_address, port):
 	if not ip_address or type(ip_address) is not str:
 		logging.error("IP address incorrect (must be string not empty)")
 		return False
+	
+	addr = ip_address.strip().split('.')
+	if len(addr) != 4:
+    	logging.error("IP address incorrect (bas size)")
+    	return False
+	for num in addr:
+    	try:
+        	num=int(num)
+    	except:
+        	logging.error("IP address incorrect (not int)")
+        	return False
+    	if num < 0 or num > 255: 
+        	logging.error("IP address incorrect (there is at least one part of IP address not between 0 and 255)")
+        	return False
+	
 	if port < 0 or port > 65535 or type(port) is not int:
 		logging.error("Port number incorrect (must be integer between 0 and 65535)")
 		return False
