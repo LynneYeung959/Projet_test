@@ -1,20 +1,13 @@
 import unittest
-<<<<<<< Updated upstream
 import sqlite3
 from server.database import *
-=======
->>>>>>> Stashed changes
 
 class TestDatabase(unittest.TestCase):
 
 	def test_checkUsername(self):
         self.assertFalse(database.check_username("")) # username empty 
         self.assertTrue(database.check_username("log"))
-<<<<<<< Updated upstream
 
-=======
-  
->>>>>>> Stashed changes
 	def test_checkIP(self):
         self.assertFalse(database.check_ip("")) # empty
         self.assertFalse(database.check_ip("1")) # bad IP 
