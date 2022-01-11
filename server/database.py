@@ -57,7 +57,15 @@ def is_port_valid(port_nb):
     """
     return (port_nb >= 1024) and (port_nb <= 65535)
 
-def add_user(cursor, username, password, ip, port):
+def is_user_registered(cursor, username):
+    """
+    Vérifie si username est déjà enregistré :
+    Retourne un booléen selon la validité
+    """
+    cursor.execute("SELECT username FROM `users` WHERE username=?", [username])
+    return len(cursor.fetchall()) > 0 # La liste est vide si username n'est pas trouvé
+
+def user_login(cursor, username, password):
     pass
 
 '''

@@ -3,7 +3,7 @@ import sqlite3
 from hashlib import md5
 
 from server.database import is_username_valid, is_password_valid, \
-is_ip_valid, is_port_valid, add_user
+is_ip_valid, is_port_valid, is_user_registered, user_login
 from client.crypto import generate_keys, encrypt_message, decrypt_message
 
 class TestDatabase(unittest.TestCase):
@@ -67,18 +67,12 @@ class TestDatabase(unittest.TestCase):
         self.assertFalse(is_user_registered(cursor, "anonymous"))
         self.assertFalse(is_user_registered(cursor, "gerard"))
         self.assertFalse(is_user_registered(cursor, "Noobmaster"))
-'''
-    def test_add_user(self):
-        self.assertFalse(database.insert_user_into_db(self.test_database,"","0.0.0.0",80)) # username empty 
-        self.assertFalse(database.insert_user_into_db(self.test_database,"log","0.0.0",80)) # bad IP
-        self.assertFalse(database.insert_user_into_db(self.test_database,"log","0.0.0.0",70000)) # bad port
-        self.assertTrue(database.insert_user_into_db(self.test_database,"log","0.0.0.0",80)) 
-        self.assertFalse(database.insert_user_into_db(self.test_database,"log","0.0.0.0",80))  # Cannot add the same user with same address and port
-'''
+
+    
 if __name__ == '__main__':
 
     # Création d'une table SQL de test
-    conn = sqlite3.connect('test_database.db')
+    conn = sqlite3.connect('tests/test_database.db')
     cursor = conn.cursor()
     cursor.execute("DROP TABLE IF EXISTS `Users`")
     cursor.execute("CREATE TABLE `Users` ( \
