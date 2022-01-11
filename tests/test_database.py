@@ -4,7 +4,7 @@ from hashlib import md5
 
 from server.database import is_username_valid, is_password_valid, \
 is_ip_valid, is_port_valid, is_user_registered, user_login, user_create
-from client.crypto import generate_keys, encrypt_message, decrypt_message
+from client.crypto import generate_keys
 
 class TestDatabase(unittest.TestCase):
 
