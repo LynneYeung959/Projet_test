@@ -1,7 +1,6 @@
 import logging
 import sqlite3
 
-
 def get_db():
 	db = sqlite3.connect('users.db')
 	db.row_factory = sqlite3.Row
@@ -11,8 +10,10 @@ def init_db():
 	db = get_db()
 	cursor = db.cursor()
 	cursor.execute("DROP TABLE IF EXISTS users")
-	cursor.execute('''CREATE TABLE IF NOT EXISTS users
-              (username TEXT UNIQUE NOT NULL, IP INT UNSIGNED, PORT INT UNSIGNED)''')
+	cursor.execute("CREATE TABLE IF NOT EXISTS users( \
+    username TEXT UNIQUE NOT NULL, \
+    ip TEXT NULL, \
+    port INT UNSIGNED)")
 	db.commit()
 	db.close()
 
