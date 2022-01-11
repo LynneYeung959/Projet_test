@@ -1,8 +1,13 @@
+import unittest
+import sqlite3
+from server.database import *
+
+class TestDatabase(unittest.TestCase):
 
 	def test_checkUsername(self):
         self.assertFalse(database.check_username("")) # username empty 
         self.assertTrue(database.check_username("log"))
-    
+
 	def test_checkIP(self):
         self.assertFalse(database.check_ip("")) # empty
         self.assertFalse(database.check_ip("1")) # bad IP 
@@ -19,3 +24,6 @@
         self.assertFalse(database.insert_user_into_db(self.test_database,"log","0.0.0.0",70000)) # bad port
         self.assertTrue(database.insert_user_into_db(self.test_database,"log","0.0.0.0",80)) 
         self.assertFalse(database.insert_user_into_db(self.test_database,"log","0.0.0.0",80))  # Cannot add the same user with same address and port
+
+if __name__ == '__main__':
+    unittest.main()
