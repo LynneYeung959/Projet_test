@@ -59,13 +59,22 @@ class TestDatabase(unittest.TestCase):
         self.assertFalse(is_port_valid(80))
         self.assertFalse(is_port_valid(99999))
 
+    def test_is_user_registered(self):
+        # Vérification de la recherche d'un utilisateur dans la base de données
+        self.assertTrue(is_user_registered(cursor, "Gerard"))
+        self.assertTrue(is_user_registered(cursor, "Noobmaster69"))
+
+        self.assertFalse(is_user_registered(cursor, "anonymous"))
+        self.assertFalse(is_user_registered(cursor, "gerard"))
+        self.assertFalse(is_user_registered(cursor, "Noobmaster"))
+'''
     def test_add_user(self):
         self.assertFalse(database.insert_user_into_db(self.test_database,"","0.0.0.0",80)) # username empty 
         self.assertFalse(database.insert_user_into_db(self.test_database,"log","0.0.0",80)) # bad IP
         self.assertFalse(database.insert_user_into_db(self.test_database,"log","0.0.0.0",70000)) # bad port
         self.assertTrue(database.insert_user_into_db(self.test_database,"log","0.0.0.0",80)) 
         self.assertFalse(database.insert_user_into_db(self.test_database,"log","0.0.0.0",80))  # Cannot add the same user with same address and port
-
+'''
 if __name__ == '__main__':
 
     # Création d'une table SQL de test
@@ -84,10 +93,10 @@ if __name__ == '__main__':
     users = [("Gerard", "Pa$$w0rd"), ("Noobmaster69", "xXP@ssw0rdXx")]
     for username, password in users:
         md5_pass = md5(password.encode())
-        keys = generate_key(2048)
+        keys = generate_keys(2048)
         ip = "127.0.0.1"
         port = 4242
-        cursor.execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?, ?)", [username, md5_pass.digest(), keys[0], keys[1], ip, port])
+        cursor.execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?)", [username, md5_pass.digest(), keys[0], keys[1], ip, port])
 
     unittest.main()
 
