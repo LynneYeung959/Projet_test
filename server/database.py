@@ -101,24 +101,28 @@ def user_create(cursor, username, password, ip, port):
     cursor.execute("INSERT INTO `Users` VALUES(?, ?, ?, ?, ?, ?)", [username, md5_pass.digest(), keys[0], keys[1], ip, port])
 
     return True
-'''
+
 def init_db():
+    """
+    Créé la base de donnée
+    """
     db = sqlite3.connect('users.db')
     db.row_factory = sqlite3.Row
     cursor = db.cursor()
+
     cursor.execute("DROP TABLE IF EXISTS users")
-    cursor.execute("CREATE TABLE IF NOT EXISTS users( \
+    cursor.execute("CREATE TABLE IF users( \
     username TEXT UNIQUE NOT NULL, \
     password VARBINARY(32) NOT NULL, \
     privatekey TEXT NOT NULL, \
     publickey TEXT NOT NULL), \
     ip TEXT NOT NULL, \
     port INT UNSIGNED)")
-    cursor.execute("CREATE TABLE  users \
-    (username TEXT UNIQUE NOT NULL, ip TEXT NOT NULL, port INT UNSIGNED)")
+
     db.commit()
     db.close()
 
+'''
 def dump_db():
     db = get_db()
     cursor = db.cursor()
