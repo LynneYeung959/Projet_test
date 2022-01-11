@@ -3,7 +3,7 @@ import sqlite3
 from hashlib import md5
 
 from server.database import is_username_valid, is_password_valid, \
-is_ip_valid, is_port_valid, is_user_registered, user_login
+is_ip_valid, is_port_valid, is_user_registered, user_login, user_create
 from client.crypto import generate_keys, encrypt_message, decrypt_message
 
 class TestDatabase(unittest.TestCase):
@@ -78,6 +78,32 @@ class TestDatabase(unittest.TestCase):
         self.assertFalse(user_login(cursor, "Gerard", "pa$$w0rd"))
         self.assertFalse(user_login(cursor, "wrong_user", "Pa$$w0rd"))
         self.assertFalse(user_login(cursor, "gerard", "Pa$$w0rd"))
+
+    def test_user_create(self):
+        # Tests sur la base de données après avoir créé un nouveau user
+        self.assertTrue(user_create(cursor, "NewUser1", "Pa$$w0rd1", "127.0.0.1", 4242))
+        self.assertTrue(user_create(cursor, "NewUser2", "Pa$$w0rd2", "127.0.0.1", 4242))
+
+        # Mauvais username
+        self.assertFalse(user_create(cursor, "n3", "Pa$$w0rd3", "127.0.0.1", 4242))
+        self.assertFalse(user_create(cursor, "new_user3", "Pa$$w0rd3", "127.0.0.1", 4242))
+        # Mauvais password
+        self.assertFalse(user_create(cursor, "NewUser3", "mdp", "127.0.0.1", 4242))
+        # Mauvaise IP
+        self.assertFalse(user_create(cursor, "NewUser3", "Pa$$w0rd3", "fakeIP", 4242))
+        # Mauvais port
+        self.assertFalse(user_create(cursor, "NewUser3", "Pa$$w0rd3", "127.0.0.1", 99999))
+
+        # Utilisateur déjà existant
+        self.assertFalse(user_create(cursor, "Gerard", "xXP@ssw0rdXx", "127.0.0.1", 4242))
+        self.assertFalse(user_create(cursor, "NewUser2", "xXP@ssw0rdXx", "127.0.0.1", 4242))
+
+        # Vérification de l'ajout des nouveaux utilisateurs
+        cursor.execute('SELECT username FROM `Users` WHERE username="NewUser1"')
+        self.assertEqual(len(cursor.fetchall()), 1)
+
+        cursor.execute('SELECT username FROM `Users` WHERE username="NewUser2"')
+        self.assertEqual(len(cursor.fetchall()), 1)
 
 if __name__ == '__main__':
 
