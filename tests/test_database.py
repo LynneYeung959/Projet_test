@@ -126,7 +126,8 @@ if __name__ == '__main__':
         keys = generate_keys(2048)
         ip = "127.0.0.1"
         port = 4242
-        cursor.execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?)", [username, md5_pass.digest(), keys[0], keys[1], ip, port])
+        cursor.execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?)", \
+        [username, md5_pass.digest(), keys[0], keys[1], ip, port])
 
     unittest.main()
 
