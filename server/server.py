@@ -9,8 +9,9 @@ import logging
 from docopt import docopt
 from flask import Flask
 from flask import Response
+from flask import request
 
-import database
+import database as db
 
 
 APP = Flask(__name__)
@@ -24,8 +25,9 @@ def is_alive():
 
 # Add user
 @APP.route('/users', methods=['POST'])
-def add_user(username, ip_address, port):
-	result = insert_user_into_db(username, ip_address, port)
+def add_user():
+	data = request.form
+	result = db.insert_user_into_db(data['username'], data['IP'], int(data['port']))
 	if not result:
 		logging.warning("Failed to register user")
 		return Response(status=404)
@@ -44,6 +46,8 @@ def delete_user(username):
 
 
 if __name__ == '__main__':
+	db.init_db()
+	db.dump_db()
 	APP.run()
 	# ARGS = docopt(__doc__)
 	# if ARGS['--port']:
