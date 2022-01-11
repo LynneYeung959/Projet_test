@@ -1,5 +1,6 @@
 # Projet_test
 ![Pylint](https://github.com/LynneYeung959/Projet_test/actions/workflows/pylint.yml/badge.svg)
+![Tests](https://github.com/LynneYeung959/Projet_test/actions/workflows/python-tests.yml/badge.svg)
 
 ## Nos principes 
 
