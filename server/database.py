@@ -2,9 +2,18 @@ import logging
 import sqlite3
 import re
 
-username_regex = re.compile("([A-Za-z0-9]){4,}")
+# Regular expression
+username_regex = re.compile("([A-Za-z0-9]){3,}")
 password_regex = re.compile("(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^A-Za-z0-9]).{8,}")
 
+def is_username_valid(username):
+	"""
+	Vérifie si le username est au bon format :
+	au moins 3 caractères, uniquement des lettres et des chiffres
+	Retourne un booléen selon la validité
+	"""
+	match = username_regex.match(username)
+	return match is not None and match.group() == username
 
 def get_db():
 	db = sqlite3.connect('users.db')
