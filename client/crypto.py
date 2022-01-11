@@ -1,9 +1,10 @@
 import base64
+from typing import Optional, Tuple
+
 from Crypto import Random
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 
-from typing import Optional, Tuple
 
 def generate_keys(key_size: int) -> Optional[Tuple[str, str]]:
     """
