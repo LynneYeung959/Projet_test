@@ -12,8 +12,13 @@ def init_db():
 	cursor.execute("DROP TABLE IF EXISTS users")
 	cursor.execute("CREATE TABLE IF NOT EXISTS users( \
     username TEXT UNIQUE NOT NULL, \
-    ip TEXT NULL, \
-    port INT UNSIGNED)")
+    password VARBINARY(32) NOT NULL, \
+    ip TEXT NOT NULL, \
+    port INT UNSIGNED, \
+    privatekey TEXT NOT NULL, \
+    publickey TEXT NOT NULL)")
+	cursor.execute("CREATE TABLE  users \
+    (username TEXT UNIQUE NOT NULL, ip TEXT NOT NULL, port INT UNSIGNED)")
 	db.commit()
 	db.close()
 
