@@ -1,6 +1,6 @@
 import unittest
 import sqlite3
-from server.database import is_username_valid , is_password_valid
+from server.database import is_username_valid, is_password_valid, is_ip_valid
 
 class TestDatabase(unittest.TestCase):
 
@@ -30,12 +30,19 @@ class TestDatabase(unittest.TestCase):
         self.assertFalse(is_password_valid("Abc-#"))
         self.assertFalse(is_password_valid("HtmlGoes<br>"))
         self.assertFalse(is_password_valid("SPEACSRSEWTO"))
-'''
-	def test_checkIP(self):
-        self.assertFalse(database.check_ip("")) # empty
-        self.assertFalse(database.check_ip("1")) # bad IP 
-        self.assertTrue(database.check_ip("123.283.288.283"))
 
+    def test_is_ip_valid(self):
+        # Vérification de l'adresse ip
+        self.assertTrue(is_ip_valid("192.168.0.0"))
+        self.assertTrue(is_ip_valid("0.0.0.0"))
+        self.assertTrue(is_ip_valid("127.0.0.100"))
+        self.assertTrue(is_ip_valid("255.255.255.255"))
+
+        self.assertFalse(is_ip_valid(""))
+        self.assertFalse(is_ip_valid("0"))
+        self.assertFalse(is_ip_valid("ceci n'est pas une ip"))
+        self.assertFalse(is_ip_valid("9999.9999.9999.9999"))
+'''
     def test_checkPort(self):
         self.assertFalse(database.check_port("")) # empty
         self.assertFalse(database.check_port(80000)) # bad port
