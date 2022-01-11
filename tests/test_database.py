@@ -68,7 +68,17 @@ class TestDatabase(unittest.TestCase):
         self.assertFalse(is_user_registered(cursor, "gerard"))
         self.assertFalse(is_user_registered(cursor, "Noobmaster"))
 
-    
+    def test_user_login(self):
+        # Vérification du login d'un utilisateur
+        self.assertTrue(user_login(cursor, "Gerard", "Pa$$w0rd"))
+        self.assertTrue(user_login(cursor, "Noobmaster69", "xXP@ssw0rdXx"))
+
+        self.assertFalse(user_login(cursor, "Gerard", ""))
+        self.assertFalse(user_login(cursor, "Gerard", "wrong_password"))
+        self.assertFalse(user_login(cursor, "Gerard", "pa$$w0rd"))
+        self.assertFalse(user_login(cursor, "wrong_user", "Pa$$w0rd"))
+        self.assertFalse(user_login(cursor, "gerard", "Pa$$w0rd"))
+
 if __name__ == '__main__':
 
     # Création d'une table SQL de test
