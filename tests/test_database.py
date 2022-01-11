@@ -3,8 +3,9 @@ import sqlite3
 from hashlib import md5
 
 from server.database import is_username_valid, is_password_valid, \
-is_ip_valid, is_port_valid, is_user_registered, user_login, user_create
+    is_ip_valid, is_port_valid, is_user_registered, user_login, user_create
 from client.crypto import generate_keys
+
 
 class TestDatabase(unittest.TestCase):
 
@@ -105,6 +106,7 @@ class TestDatabase(unittest.TestCase):
         cursor.execute('SELECT username FROM `Users` WHERE username="NewUser2"')
         self.assertEqual(len(cursor.fetchall()), 1)
 
+
 if __name__ == '__main__':
 
     # Création d'une table SQL de test
@@ -127,7 +129,7 @@ if __name__ == '__main__':
         ip = "127.0.0.1"
         port = 4242
         cursor.execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?)", \
-        [username, md5_pass.digest(), keys[0], keys[1], ip, port])
+                       [username, md5_pass.digest(), keys[0], keys[1], ip, port])
 
     unittest.main()
 
