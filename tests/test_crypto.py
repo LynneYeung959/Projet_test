@@ -40,8 +40,8 @@ class TestCrypto(unittest.TestCase):
         keys = generate_keys(2048)
         self.assertEqual(encrypt_message(keys[1], ""), None)
         self.assertIsInstance(encrypt_message(keys[1], "A"), str)
-        self.assertIsInstance(encrypt_message(keys[1], \
-        "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"), str)
+        self.assertIsInstance(encrypt_message(keys[1],
+                "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"), str)
 
     def test_encryption_key(self):
         # Vérification de la clé
@@ -52,9 +52,9 @@ class TestCrypto(unittest.TestCase):
         # Vérification du chiffrement (différent du message d'origine)
         self.assertNotEqual(encrypt_message(generate_keys(1024)[1], "a"), "a")
         self.assertNotEqual(encrypt_message(generate_keys(2048)[1], "message"), "message")
-        self.assertNotEqual(encrypt_message(generate_keys(2048)[1], \
-        "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"), \
-        "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@")
+        self.assertNotEqual(encrypt_message(generate_keys(2048)[1],
+                "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"),
+                "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@")
 
     # Tests sur le déchiffrement d'un message
 
@@ -77,11 +77,12 @@ class TestCrypto(unittest.TestCase):
         # Vérification du déchiffrement
         keys = generate_keys(2048)
         self.assertEqual(decrypt_message(keys[0], encrypt_message(keys[1], "a")), "a")
-        self.assertEqual(decrypt_message(keys[0], encrypt_message(keys[1], \
-        "Hello world !")), "Hello world !")
-        self.assertEqual(decrypt_message(keys[0], encrypt_message(keys[1], \
-        "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@")), \
-        "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@")
+        self.assertEqual(decrypt_message(keys[0], encrypt_message(keys[1], "Hello world !")), "Hello world !")
+
+        encrypted_msg = encrypt_message(keys[1],
+                "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@")
+        self.assertEqual(decrypt_message(keys[0], encrypted_msg),
+                "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@")
 
 if __name__ == '__main__':
     unittest.main()
