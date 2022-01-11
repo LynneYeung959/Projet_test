@@ -3,7 +3,9 @@ from Crypto import Random
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 
-def generate_keys(key_size):
+from typing import Optional, Tuple
+
+def generate_keys(key_size: int) -> Optional[Tuple[str, str]]:
     """
     Genére une paire de clé privée / publique
     de la taille key_size d'au minimum 1024 bits
@@ -25,7 +27,7 @@ def generate_keys(key_size):
 
     return private_key_str, public_key_str
 
-def encrypt_message(public_key, message):
+def encrypt_message(public_key: str, message: str) -> Optional[str]:
     """
     Chiffrement d'un message à partir d'une clé publique
     Retourne le message crypté au format string
@@ -48,7 +50,7 @@ def encrypt_message(public_key, message):
 
     return msg_crypt_str
 
-def decrypt_message(private_key, crypt_message):
+def decrypt_message(private_key: str, crypt_message: str) -> Optional[str]:
     """
     Déchiffrement d'un message à partir d'une clé privée
     Retourne le message décrypté au format string
