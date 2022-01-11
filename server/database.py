@@ -10,6 +10,7 @@ def init_db():
 	db = get_db()
 	cursor = db.cursor()
 	cursor.execute("DROP TABLE IF EXISTS users")
+<<<<<<< Updated upstream
 	cursor.execute("CREATE TABLE IF NOT EXISTS users( \
     username TEXT UNIQUE NOT NULL, \
     password VARBINARY(32) NOT NULL, \
@@ -17,6 +18,8 @@ def init_db():
     port INT UNSIGNED, \
     privatekey TEXT NOT NULL, \
     publickey TEXT NOT NULL)")
+=======
+>>>>>>> Stashed changes
 	cursor.execute("CREATE TABLE  users \
     (username TEXT UNIQUE NOT NULL, ip TEXT NOT NULL, port INT UNSIGNED)")
 	db.commit()
