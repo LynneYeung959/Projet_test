@@ -1,6 +1,6 @@
 import unittest
 import sqlite3
-from server.database import is_username_valid 
+from server.database import is_username_valid , is_password_valid
 
 class TestDatabase(unittest.TestCase):
 
