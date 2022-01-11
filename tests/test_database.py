@@ -42,12 +42,19 @@ class TestDatabase(unittest.TestCase):
         self.assertFalse(is_ip_valid("0"))
         self.assertFalse(is_ip_valid("ceci n'est pas une ip"))
         self.assertFalse(is_ip_valid("9999.9999.9999.9999"))
-'''
-    def test_checkPort(self):
-        self.assertFalse(database.check_port("")) # empty
-        self.assertFalse(database.check_port(80000)) # bad port
-        self.assertTrue(database.check_port(8080))
 
+    def test_is_port_valid(self):
+        # Vérification du port
+        self.assertTrue(is_port_valid(4242))
+        self.assertTrue(is_port_valid(1024))
+        self.assertTrue(is_port_valid(65535))
+        self.assertTrue(is_port_valid(50000))
+
+        self.assertFalse(is_port_valid(0))
+        self.assertFalse(is_port_valid(-10))
+        self.assertFalse(is_port_valid(80))
+        self.assertFalse(is_port_valid(99999))
+'''
     def test_addUser(self):
         self.assertFalse(database.insert_user_into_db(self.test_database,"","0.0.0.0",80)) # username empty 
         self.assertFalse(database.insert_user_into_db(self.test_database,"log","0.0.0",80)) # bad IP
