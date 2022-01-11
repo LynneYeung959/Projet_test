@@ -6,6 +6,7 @@ import socket
 # Regular expression
 username_regex = re.compile("([A-Za-z0-9]){3,}")
 password_regex = re.compile("(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^A-Za-z0-9]).{8,}")
+ip_regex = "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$"
 
 def is_username_valid(username):
     """
@@ -25,6 +26,29 @@ def is_password_valid(password):
     """
     match = password_regex.match(password)
     return match is not None and match.group() == password
+
+def is_ip_valid(ip_address):
+    """
+    Vérifie si l'ip est au bon format :
+    On utilise la fonction inet_aton:
+    si elle peut s'exécuter, l'ip est valide
+    Ainsi qu'une comparaison avec les expressions régulières
+    Retourne un booléen selon la validité
+    """
+
+    if(re.search(ip_regex, ip_address)):
+        ip_format = True
+         
+    else:
+        ip_format = False
+
+    try: 
+        socket.inet_aton(ip_address)
+        legal_ip = True
+    except:
+        legal_ip = False
+
+    return ip_format and legal_ip
 
 def get_db():
     db = sqlite3.connect('users.db')
