@@ -71,6 +71,8 @@ def user_login(cursor, username, password):
     cursor.execute("SELECT username FROM `Users` WHERE username=? AND password=?", [username, md5_pass.digest()])
     return len(cursor.fetchall()) > 0
 
+def user_create(cursor, username, password, ip, port):
+    pass
 '''
 def get_db():
     db = sqlite3.connect('users.db')
