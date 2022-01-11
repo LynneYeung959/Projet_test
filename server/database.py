@@ -1,6 +1,7 @@
 import logging
 import sqlite3
 import re
+import socket
 
 # Regular expression
 username_regex = re.compile("([A-Za-z0-9]){3,}")
