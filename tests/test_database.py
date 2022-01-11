@@ -31,10 +31,6 @@ class TestDatabase(unittest.TestCase):
         self.assertFalse(is_password_valid("HtmlGoes<br>"))
         self.assertFalse(is_password_valid("SPEACSRSEWTO"))
 '''
-	def test_checkUsername(self):
-        self.assertFalse(database.check_username("")) # username empty 
-        self.assertTrue(database.check_username("log"))
-
 	def test_checkIP(self):
         self.assertFalse(database.check_ip("")) # empty
         self.assertFalse(database.check_ip("1")) # bad IP 
