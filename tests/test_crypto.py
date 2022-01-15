@@ -3,6 +3,7 @@ from Crypto.PublicKey import RSA
 
 from client.crypto import generate_keys, encrypt_message, decrypt_message
 
+
 class TestCrypto(unittest.TestCase):
 
     # Tests sur la génération des clés privées et publiques
@@ -38,10 +39,10 @@ class TestCrypto(unittest.TestCase):
     def test_encryption_message(self):
         # Vérification du format du message à chiffrer
         keys = generate_keys(2048)
+        msg = "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"
         self.assertEqual(encrypt_message(keys[1], ""), None)
         self.assertIsInstance(encrypt_message(keys[1], "A"), str)
-        self.assertIsInstance(encrypt_message(keys[1],
-                "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"), str)
+        self.assertIsInstance(encrypt_message(keys[1], msg), str)
 
     def test_encryption_key(self):
         # Vérification de la clé
@@ -50,11 +51,10 @@ class TestCrypto(unittest.TestCase):
 
     def test_encryption_content(self):
         # Vérification du chiffrement (différent du message d'origine)
+        long_msg = "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"
         self.assertNotEqual(encrypt_message(generate_keys(1024)[1], "a"), "a")
         self.assertNotEqual(encrypt_message(generate_keys(2048)[1], "message"), "message")
-        self.assertNotEqual(encrypt_message(generate_keys(2048)[1],
-                "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"),
-                "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@")
+        self.assertNotEqual(encrypt_message(generate_keys(2048)[1], long_msg), long_msg)
 
     # Tests sur le déchiffrement d'un message
 
@@ -68,10 +68,8 @@ class TestCrypto(unittest.TestCase):
     def test_decryption_key(self):
         # Vérification de la clé
         keys = generate_keys(2048)
-        self.assertEqual(decrypt_message("Fake key:CBVscPeuYkXW4/jjhinp", \
-        encrypt_message(keys[1], "A")), None)
-        self.assertIsInstance(decrypt_message(keys[0], encrypt_message(\
-        keys[1], "A")), str)
+        self.assertEqual(decrypt_message("Fake key:CBVscPeuYkXW4/jjhinp", encrypt_message(keys[1], "A")), None)
+        self.assertIsInstance(decrypt_message(keys[0], encrypt_message(keys[1], "A")), str)
 
     def test_decryption_content(self):
         # Vérification du déchiffrement
@@ -79,10 +77,10 @@ class TestCrypto(unittest.TestCase):
         self.assertEqual(decrypt_message(keys[0], encrypt_message(keys[1], "a")), "a")
         self.assertEqual(decrypt_message(keys[0], encrypt_message(keys[1], "Hello world !")), "Hello world !")
 
-        encrypted_msg = encrypt_message(keys[1],
-                "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@")
-        self.assertEqual(decrypt_message(keys[0], encrypted_msg),
-                "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@")
+        msg = "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"
+        encrypted_msg = encrypt_message(keys[1], msg)
+        self.assertEqual(decrypt_message(keys[0], encrypted_msg), msg)
+
 
 if __name__ == '__main__':
     unittest.main()

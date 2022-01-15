@@ -113,23 +113,23 @@ if __name__ == '__main__':
     conn = sqlite3.connect('tests/test_database.db')
     cursor = conn.cursor()
     cursor.execute("DROP TABLE IF EXISTS `Users`")
-    cursor.execute("CREATE TABLE `Users` ( \
-        `username` TEXT UNIQUE NOT NULL, \
-        `password` VARBINARY(32) NOT NULL, \
-        `publickey` TEXT NOT NULL, \
-        `privatekey` TEXT NOT NULL, \
-        `ip` TEXT NOT NULL, \
-        `port` INT UNSIGNED)")
+    cursor.execute("""CREATE TABLE `Users` (
+        `username` TEXT UNIQUE NOT NULL,
+        `password` VARBINARY(32) NOT NULL,
+        `publickey` TEXT NOT NULL,
+        `privatekey` TEXT NOT NULL,
+        `ip` TEXT NOT NULL,
+        `port` INT UNSIGNED
+    )""")
 
     # Remplir quelques utilisateurs arbitrairement
     users = [("Gerard", "Pa$$w0rd"), ("Noobmaster69", "xXP@ssw0rdXx")]
     for username, password in users:
-        md5_pass = md5(password.encode())
+        md5_pass = md5(password.encode()).digest()
         keys = generate_keys(2048)
         ip = "127.0.0.1"
         port = 4242
-        cursor.execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?)", \
-                       [username, md5_pass.digest(), keys[0], keys[1], ip, port])
+        cursor.execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?)", [username, md5_pass, keys[0], keys[1], ip, port])
 
     unittest.main()
 
