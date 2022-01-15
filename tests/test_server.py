@@ -1,29 +1,28 @@
-import unittest
-import shlex
-import subprocess
 import time
+import unittest
+
+from multiprocessing import Process
 
 import requests
 
+from server import server
+
 
 class TestServer(unittest.TestCase):
-    server_subprocess = None
-
-    test_port = "1234"
+    server_subprocess: Process
     server_address = "127.0.0.1"
-    server_url = "http://" + server_address + ":" + test_port
+    server_port = "1234"
+    server_url = "http://" + server_address + ":" + server_port
 
     @classmethod
     def setUpClass(cls):
-        cmd = f"py -m server.server --port {cls.test_port}"
-        args = shlex.split(cmd)
-        cls.server_subprocess = subprocess.Popen(args)  # launch command as a subprocess
+        cls.server_subprocess = Process(target=server.run, args=(cls.server_address, cls.server_port))
+        cls.server_subprocess.start()
         time.sleep(3)
 
     @classmethod
     def tearDownClass(cls):
         cls.server_subprocess.kill()
-        cls.server_subprocess.wait()
 
     def test_launch_server(self):
         response = requests.get(self.server_url + "/isalive")
