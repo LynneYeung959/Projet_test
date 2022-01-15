@@ -30,15 +30,12 @@ class TestServer(unittest.TestCase):
 
     def test_add_user_request(self):
         # test correct user insertion
-        payload = {'username': 'alice', 'IP': '0.0.0.14', 'port': '1236'}
-        response = requests.post(self.server_url + "/users", data=payload)
+        payload = {'username': 'albert', 'password': '1MdpV@lide', 'ip': '0.0.0.1', 'port': 1235}
+        response = requests.post(self.server_url + "/users", json=payload)
         self.assertEqual(response.status_code, 200)
 
-        # test multiple users insertion with same username (should fail)
-        payload = {'username': 'albert', 'IP': '0.0.0.0', 'port': '1234'}
-        response = requests.post(self.server_url + "/users", data=payload)
-        payload = {'username': 'albert', 'IP': '0.0.0.1', 'port': '1235'}
-        response = requests.post(self.server_url + "/users", data=payload)
+        payload = {'username': 'alice', 'password': 'eau pet idée mer veille', 'ip': '0.0.0.14', 'port': 1236}
+        response = requests.post(self.server_url + "/users", json=payload)
         self.assertEqual(response.status_code, 404)
 
         # test unsupported request type

@@ -1,7 +1,9 @@
 import argparse
+import json
 import logging
+import sqlite3
 
-from flask import Flask
+from flask import Flask, request
 
 from . import database
 
@@ -17,13 +19,20 @@ def create_app(name: str = __name__) -> Flask:
     # Add user
     @app.route('/users', methods=['POST'])
     def add_user():
-        cursor = None  # temporary, replace by database cursor
-        # temporary placeholders, the values should be get from POST data
-        username = "Username"
-        password = "1Password"
-        ip_address = "128.54.68.1"
-        port = 88
+        # TODO : database decorator
+        data_base = sqlite3.connect('users.db')
+        data_base.row_factory = sqlite3.Row
+        cursor = data_base.cursor()
+
+        data = json.loads(request.data.decode('utf-8'))
+        username = data['username']
+        password = data['password']
+        ip_address = data['ip']
+        port = data['port']
         result = database.user_create(cursor, username, password, ip_address, port)
+
+        data_base.commit()
+        data_base.close()
         if not result:
             logging.warning("Failed to register user")
             return "", 404
@@ -43,6 +52,7 @@ def create_app(name: str = __name__) -> Flask:
 
 
 def run(host=None, port=None):
+    database.init_db()
     app = create_app()
     app.run(host=host, port=port)
 
