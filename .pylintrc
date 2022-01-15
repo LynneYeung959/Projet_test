@@ -90,7 +90,7 @@ disable=raw-checker-failed,
         missing-class-docstring,
         missing-function-docstring,
         anomalous-backslash-in-string,
-        invalid-name
+        invalid-name,
         consider-using-with
 
 # Enable the message, report, category or checker with the given id(s). You can
