@@ -1,5 +1,4 @@
 import base64
-from dataclasses import dataclass
 from typing import Optional, Tuple
 
 from Crypto import Random
@@ -7,92 +6,53 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 
 
-@dataclass
 class KeyPair:
-    public: str
-    private: str
-
     @staticmethod
     def generate(size: int):
-        pass
+        """ Generate a private / public pair of keys. Size argument must be greater or equal to 1024 """
+        if size < 1024:
+            return None
 
-    def encrypt(self, message: str) -> str:
-        pass
+        return KeyPair(RSA.generate(size, Random.new().read))
 
-    def decrypt(self, message: str) -> str:
-        pass
+    def __init__(self, rsa_key: RSA.RsaKey):
+        """ Initialize a KeyPair from a private RSA key """
+        assert rsa_key.has_private()
+        self.__key_private = rsa_key
+        self.__key_public = rsa_key.publickey()
+        self.__encryptor = PKCS1_OAEP.new(self.__key_public)
+        self.__decryptor = PKCS1_OAEP.new(self.__key_private)
 
+    @property
+    def public(self) -> str:
+        return self.__key_public.export_key().decode()
 
-def generate_keys(key_size: int) -> Optional[Tuple[str, str]]:
-    """
-    Genére une paire de clé privée / publique
-    de la taille key_size d'au minimum 1024 bits
-    Retourne les deux clés au format string sous
-    la forme d'une liste de deux éléments
-    """
-    if key_size < 1024:
-        return None
+    @property
+    def private(self) -> str:
+        return self.__key_private.export_key().decode()
 
-    random_gen = Random.new().read
+    def encrypt(self, message: str) -> Optional[str]:
+        """ Returns the message encrypted using the public key and encoded in base64 """
+        if message == "":
+            return ""
 
-    # Génération de la paire de clé de taille key_size
-    private_key = RSA.generate(key_size, random_gen)
-    public_key = private_key.publickey()
+        try:
+            crypted_msg = self.__encryptor.encrypt(message.encode())
+        except ValueError:
+            return  None
 
-    # Conversion des clés au format texte (type string)
-    private_key_str = private_key.exportKey().decode()
-    public_key_str = public_key.exportKey().decode()
+        return base64.b64encode(crypted_msg).decode()
 
-    return private_key_str, public_key_str
+    def decrypt(self, b64_message: str) -> Optional[str]:
+        """ Returns the plain text message decrypted using the private key """
+        if b64_message == "":
+            return ""
 
+        message = base64.b64decode(b64_message.encode())
 
-def encrypt_message(public_key: str, message: str) -> Optional[str]:
-    """
-    Chiffrement d'un message à partir d'une clé publique
-    Retourne le message crypté au format string
-    """
-    if message == "":
-        return None
+        try:
+            decrypted_msg = self.__decryptor.decrypt(message)
+        except ValueError:
+            return None
 
-    # Conversion de la clé publique de string vers RSA_key_format
-    # lorsque celle-ci est valide
-    try:
-        key = RSA.importKey(public_key)
-    except ValueError:
-        return None
-
-    encryptor = PKCS1_OAEP.new(key)
-    msg_crypt = base64.b64encode(encryptor.encrypt(message.encode()))
-
-    # Conversion au format texte (type string)
-    msg_crypt_str = msg_crypt.decode()
-
-    return msg_crypt_str
-
-
-def decrypt_message(private_key: str, crypt_message: str) -> Optional[str]:
-    """
-    Déchiffrement d'un message à partir d'une clé privée
-    Retourne le message décrypté au format string
-    """
-    if crypt_message == "":
-        return None
-
-    # Conversion de la clé publique de string vers RSA_key_format
-    # lorsque celle-ci est valide
-    try:
-        key = RSA.importKey(private_key)
-    except ValueError:
-        return None
-
-    decryptor = PKCS1_OAEP.new(key)
-
-    try:
-        message = decryptor.decrypt(base64.b64decode(crypt_message.encode()))
-    except ValueError:
-        return None
-
-    # Conversion au format texte (type string)
-    message_str = message.decode()
-
-    return message_str
+        return decrypted_msg.decode()
