@@ -1,5 +1,5 @@
 import base64
-from typing import Optional, Tuple
+from typing import Optional
 
 from Crypto import Random
 from Crypto.Cipher import PKCS1_OAEP
