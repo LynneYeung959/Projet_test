@@ -28,10 +28,10 @@ class TestDatabase(unittest.TestCase):
         for username, password in users:
             md5_pass = md5(password.encode()).digest()
             keys = KeyPair.generate(2048)
-            ip = "127.0.0.1"
+            ip_addr = "127.0.0.1"
             port = 4242
             self.cursor.execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?)",
-                                [username, md5_pass, keys.public, keys.private, ip, port])
+                                [username, md5_pass, keys.public, keys.private, ip_addr, port])
 
     def tearDown(self):
         self.conn.commit()

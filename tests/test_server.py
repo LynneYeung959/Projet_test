@@ -44,7 +44,7 @@ class TestServer(unittest.TestCase):
         response = requests.get(self.server_url + "/user")
         self.assertEqual(response.status_code, 404)
 
-    def test_getIP(self):
+    def test_get_ip(self):
         # correct request
         response = requests.get(self.server_url + "/users/paul/ip")
         self.assertEqual(response.status_code, 200)
