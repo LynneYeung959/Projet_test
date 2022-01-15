@@ -8,13 +8,16 @@ from client.crypto import KeyPair
 
 
 class TestDatabase(unittest.TestCase):
+    conn: sqlite3.Connection
+    cursor: sqlite3.Cursor
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         # Création d'une table SQL de test
-        self.conn = sqlite3.connect('tests/test_database.db')
-        self.cursor = self.conn.cursor()
-        self.cursor.execute("DROP TABLE IF EXISTS `Users`")
-        self.cursor.execute("""CREATE TABLE `Users` (
+        cls.conn = sqlite3.connect('tests/test_database.db')
+        cls.cursor = cls.conn.cursor()
+        cls.cursor.execute("DROP TABLE IF EXISTS `Users`")
+        cls.cursor.execute("""CREATE TABLE `Users` (
             `username` TEXT UNIQUE NOT NULL,
             `password` VARBINARY(32) NOT NULL,
             `publickey` TEXT NOT NULL,
@@ -30,12 +33,13 @@ class TestDatabase(unittest.TestCase):
             keys = KeyPair.generate(2048)
             ip_addr = "127.0.0.1"
             port = 4242
-            self.cursor.execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?)",
+            cls.cursor.execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?)",
                                 [username, md5_pass, keys.public, keys.private, ip_addr, port])
 
-    def tearDown(self):
-        self.conn.commit()
-        self.conn.close()
+    @classmethod
+    def tearDownClass(cls):
+        cls.conn.commit()
+        cls.conn.close()
 
     def test_is_username_valid(self):
         # Vérification du username
