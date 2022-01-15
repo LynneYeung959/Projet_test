@@ -3,7 +3,7 @@ import re
 import socket
 from hashlib import md5
 
-from client.crypto import generate_keys
+from client.crypto import KeyPair
 
 # Regular expression
 username_regex = re.compile("([A-Za-z0-9]){3,}")
@@ -101,9 +101,9 @@ def user_create(cursor, username, password, ip_adress, port):
 
     # Création du nouvel utilisateur
     md5_pass = md5(password.encode())
-    keys = generate_keys(2048)
+    keys = KeyPair.generate(2048)
     cursor.execute("INSERT INTO `Users` VALUES(?, ?, ?, ?, ?, ?)",
-                   [username, md5_pass.digest(), keys[0], keys[1], ip_adress, port])
+                   [username, md5_pass.digest(), keys.public, keys.private, ip_adress, port])
 
     return True
 

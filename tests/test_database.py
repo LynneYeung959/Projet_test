@@ -4,7 +4,7 @@ from hashlib import md5
 
 from server.database import is_username_valid, is_password_valid, \
     is_ip_valid, is_port_valid, is_user_registered, user_login, user_create
-from client.crypto import generate_keys
+from client.crypto import KeyPair
 
 
 class TestDatabase(unittest.TestCase):
@@ -126,10 +126,11 @@ if __name__ == '__main__':
     users = [("Gerard", "Pa$$w0rd"), ("Noobmaster69", "xXP@ssw0rdXx")]
     for username, password in users:
         md5_pass = md5(password.encode()).digest()
-        keys = generate_keys(2048)
+        keys = KeyPair.generate(2048)
         ip = "127.0.0.1"
         port = 4242
-        cursor.execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?)", [username, md5_pass, keys[0], keys[1], ip, port])
+        cursor.execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?)",
+                       [username, md5_pass, keys.public, keys.private, ip, port])
 
     unittest.main()
 
