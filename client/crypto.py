@@ -1,9 +1,26 @@
 import base64
+from dataclasses import dataclass
 from typing import Optional, Tuple
 
 from Crypto import Random
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
+
+
+@dataclass
+class KeyPair:
+    public: str
+    private: str
+
+    @staticmethod
+    def generate(size: int):
+        pass
+
+    def encrypt(self, message: str) -> str:
+        pass
+
+    def decrypt(self, message: str) -> str:
+        pass
 
 
 def generate_keys(key_size: int) -> Optional[Tuple[str, str]]:
@@ -28,6 +45,7 @@ def generate_keys(key_size: int) -> Optional[Tuple[str, str]]:
 
     return private_key_str, public_key_str
 
+
 def encrypt_message(public_key: str, message: str) -> Optional[str]:
     """
     Chiffrement d'un message à partir d'une clé publique
@@ -50,6 +68,7 @@ def encrypt_message(public_key: str, message: str) -> Optional[str]:
     msg_crypt_str = msg_crypt.decode()
 
     return msg_crypt_str
+
 
 def decrypt_message(private_key: str, crypt_message: str) -> Optional[str]:
     """
