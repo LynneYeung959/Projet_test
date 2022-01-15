@@ -9,15 +9,21 @@ import requests
 class TestServer(unittest.TestCase):
     server_subprocess = None
 
-    test_port = "5000"
+    test_port = "1234"
     server_address = "127.0.0.1"
     server_url = "http://" + server_address + ":" + test_port
 
-    def set_up(self):
-        cmd = "python3 server.py"
+    @classmethod
+    def setUpClass(cls):
+        cmd = f"py -m server.server --port {cls.test_port}"
         args = shlex.split(cmd)
-        self.server_subprocess = subprocess.Popen(args)  # launch command as a subprocess
+        cls.server_subprocess = subprocess.Popen(args)  # launch command as a subprocess
         time.sleep(3)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server_subprocess.kill()
+        cls.server_subprocess.wait()
 
     def test_launch_server(self):
         response = requests.get(self.server_url + "/isalive")
@@ -69,11 +75,6 @@ class TestServer(unittest.TestCase):
         # try to delete all users (not allowed)
         response = requests.delete(self.server_url + "/users")
         self.assertEqual(response.status_code, 405)
-
-    def tear_down(self):
-        print("killing subprocess server")
-        self.server_subprocess.kill()
-        self.server_subprocess.wait()
 
 
 if __name__ == '__main__':

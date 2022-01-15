@@ -8,6 +8,7 @@ import unittest
 test_modules = [
     'tests.test_crypto',
     'tests.test_database',
+    'tests.test_server'
 ]
 
 suite = unittest.TestSuite()
