@@ -1,29 +1,26 @@
-"""server
-Usage:
-	server.py --port=<int>
-Options:
-	-h --help     Show this screen.
-	--port=<int>  port used
-"""
+import argparse
 import logging
+
 from flask import Flask
 from flask import Response
 
 from . import database
 
-APP = Flask(__name__)
+app = Flask(__name__)
 
 
 # Check server state
-@APP.route('/isalive', methods=['GET'])
+@app.route('/isalive', methods=['GET'])
 def is_alive():
     return Response(status=200)
 
 
 # Add user
-@APP.route('/users', methods=['POST'])
+@app.route('/users', methods=['POST'])
 def add_user(username, ip_address, port):
-    result = database.insert_user_into_db(username, ip_address, port)
+    cursor = None  # temporary, replace by database cursor
+    password = "1Password"  # temporary, replace by POST value from client
+    result = database.user_create(cursor, username, password, ip_address, port)
     if not result:
         logging.warning("Failed to register user")
         return Response(status=404)
@@ -31,21 +28,20 @@ def add_user(username, ip_address, port):
 
 
 # Get IP with username
-@APP.route('/users/<string:username>/ip', methods=['GET'])
-def get_IP(username):
+@app.route('/users/<string:username>/ip', methods=['GET'])
+def get_ip(username):  # pylint: disable=unused-argument
     pass
 
 
 # Delete user with username
-@APP.route('/users/<string:username>', methods=['DELETE'])
-def delete_user(username):
+@app.route('/users/<string:username>', methods=['DELETE'])
+def delete_user(username):  # pylint: disable=unused-argument
     pass
 
 
 if __name__ == '__main__':
-    APP.run()
-# ARGS = docopt(__doc__)
-# if ARGS['--port']:
-# 	APP.run(host='0.0.0.0', port=ARGS['--port'])
-# else:
-# 	logging.error("Wrong command line arguments")
+    parser = argparse.ArgumentParser(description='Launch server at specified port')
+    parser.add_argument('--port', default=80, help='specify server port (default : 80)')
+    args = parser.parse_args()
+
+    app.run(host='localhost', port=args.port)

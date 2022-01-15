@@ -1,5 +1,3 @@
 Flask
 pycryptodome
-click
 requests
-docopt
