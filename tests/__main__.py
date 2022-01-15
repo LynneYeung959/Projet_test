@@ -32,22 +32,6 @@ unittest.TextTestRunner().run(suite)
 #             <tests.test_crypto.TestCrypto testMethod=test_key_size>,
 #             <tests.test_crypto.TestCrypto testMethod=test_key_unique>
 #         ]>
-#     ]>
-# ]>
-#
-# <unittest.suite.TestSuite tests=[
-#     <unittest.suite.TestSuite tests=[
-#         <unittest.suite.TestSuite tests=[
-#             <tests.test_crypto.TestCrypto testMethod=test_decryption_content>,
-#             <tests.test_crypto.TestCrypto testMethod=test_decryption_key>,
-#             <tests.test_crypto.TestCrypto testMethod=test_decryption_message>,
-#             <tests.test_crypto.TestCrypto testMethod=test_encryption_content>,
-#             <tests.test_crypto.TestCrypto testMethod=test_encryption_key>,
-#             <tests.test_crypto.TestCrypto testMethod=test_encryption_message>,
-#             <tests.test_crypto.TestCrypto testMethod=test_key_creation>,
-#             <tests.test_crypto.TestCrypto testMethod=test_key_size>,
-#             <tests.test_crypto.TestCrypto testMethod=test_key_unique>
-#         ]>
 #     ]>,
 #     <unittest.suite.TestSuite tests=[
 #         <unittest.suite.TestSuite tests=[

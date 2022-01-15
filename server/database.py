@@ -67,7 +67,7 @@ def is_user_registered(cursor, username):
     Vérifie si username est déjà enregistré :
     Retourne un booléen selon la validité
     """
-    cursor.execute("SELECT username FROM `users` WHERE username=?", [username])
+    cursor.execute("SELECT username FROM `Users` WHERE username=?", [username])
     return len(cursor.fetchall()) > 0  # La liste est vide si username n'est pas trouvé
 
 
@@ -81,7 +81,7 @@ def user_login(cursor, username, password):
     return len(cursor.fetchall()) > 0
 
 
-def user_create(cursor, username, password, ip_adress, port):
+def user_create(cursor, username, password, ip_address, port):
     """
     Ajoute un nouvel utilisateur à la base de donnée avec:
     username, password, ip, port et la paire de clé (publique, privée)
@@ -94,7 +94,7 @@ def user_create(cursor, username, password, ip_adress, port):
         return False
     if not is_password_valid(password):
         return False
-    if not is_ip_valid(ip_adress):
+    if not is_ip_valid(ip_address):
         return False
     if not is_port_valid(port):
         return False
@@ -103,7 +103,7 @@ def user_create(cursor, username, password, ip_adress, port):
     md5_pass = md5(password.encode())
     keys = KeyPair.generate(2048)
     cursor.execute("INSERT INTO `Users` VALUES(?, ?, ?, ?, ?, ?)",
-                   [username, md5_pass.digest(), keys.public, keys.private, ip_adress, port])
+                   [username, md5_pass.digest(), keys.public, keys.private, ip_address, port])
 
     return True
 
@@ -116,17 +116,15 @@ def init_db():
     data_base.row_factory = sqlite3.Row
     cursor = data_base.cursor()
 
-    cursor.execute("DROP TABLE IF EXISTS users")
-    cursor.execute("""
-        CREATE TABLE IF users(
-            username TEXT UNIQUE NOT NULL,
-            password VARBINARY(32) NOT NULL,
-            privatekey TEXT NOT NULL,
-            publickey TEXT NOT NULL),
-            ip TEXT NOT NULL,
-            port INT UNSIGNED
-        )
-    """)
+    cursor.execute("DROP TABLE IF EXISTS `Users`")
+    cursor.execute("""CREATE TABLE IF NOT EXISTS `Users` (
+        username TEXT UNIQUE NOT NULL,
+        password VARBINARY(32) NOT NULL,
+        privatekey TEXT NOT NULL,
+        publickey TEXT NOT NULL,
+        ip TEXT NOT NULL,
+        port INT UNSIGNED
+    )""")
 
     data_base.commit()
     data_base.close()

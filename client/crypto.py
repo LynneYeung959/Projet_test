@@ -12,7 +12,6 @@ class KeyPair:
         """ Generate a private / public pair of keys. Size argument must be greater or equal to 1024 """
         if size < 1024:
             return None
-
         return KeyPair(RSA.generate(size, Random.new().read))
 
     def __init__(self, rsa_key: RSA.RsaKey):
@@ -39,7 +38,7 @@ class KeyPair:
         try:
             crypted_msg = self.__encryptor.encrypt(message.encode())
         except ValueError:
-            return  None
+            return None
 
         return base64.b64encode(crypted_msg).decode()
 
