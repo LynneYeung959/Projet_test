@@ -84,6 +84,25 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         return "", 200
 
+    # Logout user
+    @app.route('/sessions/<string:username>', methods=['DELETE'])
+    @database.connect(db)
+    def destroy_session(username):
+        if not request.data:
+            return "", 400
+
+        data = json.loads(request.data.decode('utf-8'))
+
+        if 'password' not in data:
+            return "", 400
+
+        if not database.DB.user_login(username, data['password']):
+            return "", 403
+
+        app.client_sessions.remove(username)
+
+        return "", 200
+
     return app
 
 
