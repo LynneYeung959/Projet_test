@@ -13,10 +13,13 @@ class TestServer(unittest.TestCase):
     server_address = "127.0.0.1"
     server_port = "1234"
     server_url = "http://" + server_address + ":" + server_port
+    database_name = "test_database.db"
 
     @classmethod
     def setUpClass(cls):
-        cls.server_subprocess = Process(target=server.run, args=(cls.server_address, cls.server_port))
+        server_args = (cls.server_address, cls.server_port)
+        server_kwargs = {'db_name': cls.database_name, 'db_reset': True}
+        cls.server_subprocess = Process(target=server.run, args=server_args, kwargs=server_kwargs)
         cls.server_subprocess.start()
         time.sleep(3)
 

@@ -7,7 +7,7 @@ from flask import Flask, request
 from . import database
 
 
-def create_app(name: str = __name__) -> Flask:
+def create_app(name: str = __name__, *, db: str) -> Flask:
     app = Flask(name)
 
     # Check server state
@@ -17,9 +17,9 @@ def create_app(name: str = __name__) -> Flask:
 
     # Add user
     @app.route('/users', methods=['POST'])
-    @database.connect('users.db')
+    @database.connect(db)
     def add_user():
-        cursor = database.connection.cursor()
+        cursor = database.DB.conn.cursor()
 
         data = json.loads(request.data.decode('utf-8'))
         username = data['username']
@@ -46,15 +46,26 @@ def create_app(name: str = __name__) -> Flask:
     return app
 
 
-def run(host=None, port=None):
-    database.init_db()
-    app = create_app()
+def create_db(name: str, reset=False):
+    @database.connect(name)
+    def init_db():
+        if reset:
+            database.DB.drop_tables()
+        database.DB.create_tables()
+    init_db()
+
+
+def run(host=None, port=None, *, db_name='users.db', db_reset=False):
+    create_db(db_name, db_reset)
+    app = create_app(db=db_name)
     app.run(host=host, port=port)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Launch server at specified port')
-    parser.add_argument('--port', default=80, help='specify server port (default : 80)')
+    parser.add_argument('--port', default=80, type=int, help='specify server port (default : 80)')
+    parser.add_argument('--db', default='database.db', type=str, help='specify database file (default : database.db)')
+    parser.add_argument('--reset', default=False, type=bool, help='flag to reset database on launch')
     args = parser.parse_args()
 
-    run("localhost", args.port)
+    run("localhost", args.port, db_name=args.db, db_reset=args.reset)

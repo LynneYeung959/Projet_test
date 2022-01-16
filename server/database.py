@@ -2,14 +2,42 @@ import sqlite3
 
 from functools import wraps
 from hashlib import md5
-from typing import Callable, List, Optional
+from typing import Callable, Optional
 
 from client.crypto import KeyPair
 
 from .validation import is_username_valid, is_password_valid, is_ip_valid, is_port_valid
 
 
-connection: Optional[sqlite3.Connection] = None
+class Database:
+    def __init__(self, file_name: str):
+        self.name = file_name
+        self.conn = sqlite3.connect(self.name)
+        self.conn.row_factory = sqlite3.Row
+
+    def __del__(self):
+        self.conn.commit()
+        self.conn.close()
+
+    def reset(self):
+        self.drop_tables()
+        self.create_tables()
+
+    def create_tables(self):
+        self.conn.cursor().execute("""CREATE TABLE IF NOT EXISTS `Users` (
+            username TEXT UNIQUE NOT NULL,
+            password VARBINARY(32) NOT NULL,
+            privatekey TEXT NOT NULL,
+            publickey TEXT NOT NULL,
+            ip TEXT NOT NULL,
+            port INT UNSIGNED
+        )""")
+
+    def drop_tables(self):
+        self.conn.cursor().execute("DROP TABLE IF EXISTS `Users`")
+
+
+DB:  Optional[Database] = None
 
 
 def is_user_registered(cursor: sqlite3.Cursor, username: str) -> bool:
@@ -43,38 +71,17 @@ def user_create(cursor: sqlite3.Cursor, username: str, password: str, ip_address
     return False
 
 
-def init_db():
-    """ Initialize the database. Should be called only once at server startup """
-    data_base = sqlite3.connect('users.db')
-    data_base.row_factory = sqlite3.Row
-    cursor = data_base.cursor()
-
-    cursor.execute("DROP TABLE IF EXISTS `Users`")
-    cursor.execute("""CREATE TABLE IF NOT EXISTS `Users` (
-        username TEXT UNIQUE NOT NULL,
-        password VARBINARY(32) NOT NULL,
-        privatekey TEXT NOT NULL,
-        publickey TEXT NOT NULL,
-        ip TEXT NOT NULL,
-        port INT UNSIGNED
-    )""")
-
-    data_base.commit()
-    data_base.close()
-
-
-def connect(db_name: str):
-
+def connect(db_name: str) -> Callable:
+    """ Decorator that opens a database connection in user function scope.
+        Connection is stored in DB global variable.
+    """
     def decorator(function: Callable):
         @wraps(function)
         def wrapper(*args, **kwargs):
-            global connection
-            connection = sqlite3.connect('users.db')
-            connection.row_factory = sqlite3.Row
+            global DB
+            DB = Database(db_name)
             ret = function(*args, **kwargs)
-            connection.commit()
-            connection.close()
-            connection = None
+            DB = None
             return ret
         return wrapper
 
