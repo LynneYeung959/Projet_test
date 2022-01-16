@@ -1,30 +1,20 @@
 import unittest
-import sqlite3
 from hashlib import md5
 
-from server.database import is_username_valid, is_password_valid, \
-    is_ip_valid, is_port_valid, is_user_registered, user_login, user_create
+from server import database
+from server.validation import is_username_valid, is_password_valid, is_ip_valid, is_port_valid
 from client.crypto import KeyPair
 
 
 class TestDatabase(unittest.TestCase):
-    conn: sqlite3.Connection
-    cursor: sqlite3.Cursor
+    test_db: database.Database
+    test_db_name = "test_database.db"
 
     @classmethod
     def setUpClass(cls):
         # Création d'une table SQL de test
-        cls.conn = sqlite3.connect('tests/test_database.db')
-        cls.cursor = cls.conn.cursor()
-        cls.cursor.execute("DROP TABLE IF EXISTS `Users`")
-        cls.cursor.execute("""CREATE TABLE `Users` (
-            `username` TEXT UNIQUE NOT NULL,
-            `password` VARBINARY(32) NOT NULL,
-            `publickey` TEXT NOT NULL,
-            `privatekey` TEXT NOT NULL,
-            `ip` TEXT NOT NULL,
-            `port` INT UNSIGNED
-        )""")
+        cls.test_db = database.Database(cls.test_db_name)
+        cls.test_db.reset()
 
         # Remplir quelques utilisateurs arbitrairement
         users = [("Gerard", "Pa$$w0rd"), ("Noobmaster69", "xXP@ssw0rdXx")]
@@ -33,13 +23,8 @@ class TestDatabase(unittest.TestCase):
             keys = KeyPair.generate(2048)
             ip_addr = "127.0.0.1"
             port = 4242
-            cls.cursor.execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?)",
-                                [username, md5_pass, keys.public, keys.private, ip_addr, port])
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.conn.commit()
-        cls.conn.close()
+            cls.test_db.conn.cursor().execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?)",
+                                              [username, md5_pass, keys.public, keys.private, ip_addr, port])
 
     def test_is_username_valid(self):
         # Vérification du username
@@ -90,51 +75,62 @@ class TestDatabase(unittest.TestCase):
         self.assertFalse(is_port_valid(80))
         self.assertFalse(is_port_valid(99999))
 
-    def test_is_user_registered(self):
-        # Vérification de la recherche d'un utilisateur dans la base de données
-        self.assertTrue(is_user_registered(self.cursor, "Gerard"))
-        self.assertTrue(is_user_registered(self.cursor, "Noobmaster69"))
+    def test_db_connect(self):
+        self.assertIsNone(database.DB)
 
-        self.assertFalse(is_user_registered(self.cursor, "anonymous"))
-        self.assertFalse(is_user_registered(self.cursor, "gerard"))
-        self.assertFalse(is_user_registered(self.cursor, "Noobmaster"))
+        @database.connect('dummy.db')
+        def user_function():
+            self.assertIsNotNone(database.DB)
+            self.assertEqual(database.DB.name, 'dummy.db')
+
+        self.assertIsNone(database.DB)
+
+    def test_user_exists(self):
+        # Vérification de la recherche d'un utilisateur dans la base de données
+        self.assertTrue(self.test_db.user_exists("Gerard"))
+        self.assertTrue(self.test_db.user_exists("Noobmaster69"))
+
+        self.assertFalse(self.test_db.user_exists("anonymous"))
+        self.assertFalse(self.test_db.user_exists("gerard"))
+        self.assertFalse(self.test_db.user_exists("Noobmaster"))
 
     def test_user_login(self):
         # Vérification du login d'un utilisateur
-        self.assertTrue(user_login(self.cursor, "Gerard", "Pa$$w0rd"))
-        self.assertTrue(user_login(self.cursor, "Noobmaster69", "xXP@ssw0rdXx"))
+        self.assertTrue(self.test_db.user_login("Gerard", "Pa$$w0rd"))
+        self.assertTrue(self.test_db.user_login("Noobmaster69", "xXP@ssw0rdXx"))
 
-        self.assertFalse(user_login(self.cursor, "Gerard", ""))
-        self.assertFalse(user_login(self.cursor, "Gerard", "wrong_password"))
-        self.assertFalse(user_login(self.cursor, "Gerard", "pa$$w0rd"))
-        self.assertFalse(user_login(self.cursor, "wrong_user", "Pa$$w0rd"))
-        self.assertFalse(user_login(self.cursor, "gerard", "Pa$$w0rd"))
+        self.assertFalse(self.test_db.user_login("Gerard", ""))
+        self.assertFalse(self.test_db.user_login("Gerard", "wrong_password"))
+        self.assertFalse(self.test_db.user_login("Gerard", "pa$$w0rd"))
+        self.assertFalse(self.test_db.user_login("wrong_user", "Pa$$w0rd"))
+        self.assertFalse(self.test_db.user_login("gerard", "Pa$$w0rd"))
 
     def test_user_create(self):
         # Tests sur la base de données après avoir créé un nouveau user
-        self.assertTrue(user_create(self.cursor, "NewUser1", "Pa$$w0rd1", "127.0.0.1", 4242))
-        self.assertTrue(user_create(self.cursor, "NewUser2", "Pa$$w0rd2", "127.0.0.1", 4242))
+        self.assertTrue(self.test_db.user_create("NewUser1", "Pa$$w0rd1", "127.0.0.1", 4242))
+        self.assertTrue(self.test_db.user_create("NewUser2", "Pa$$w0rd2", "127.0.0.1", 4242))
 
         # Mauvais username
-        self.assertFalse(user_create(self.cursor, "n3", "Pa$$w0rd3", "127.0.0.1", 4242))
-        self.assertFalse(user_create(self.cursor, "new_user3", "Pa$$w0rd3", "127.0.0.1", 4242))
+        self.assertFalse(self.test_db.user_create("n3", "Pa$$w0rd3", "127.0.0.1", 4242))
+        self.assertFalse(self.test_db.user_create("new_user3", "Pa$$w0rd3", "127.0.0.1", 4242))
         # Mauvais password
-        self.assertFalse(user_create(self.cursor, "NewUser3", "mdp", "127.0.0.1", 4242))
+        self.assertFalse(self.test_db.user_create("NewUser3", "mdp", "127.0.0.1", 4242))
         # Mauvaise IP
-        self.assertFalse(user_create(self.cursor, "NewUser3", "Pa$$w0rd3", "fakeIP", 4242))
+        self.assertFalse(self.test_db.user_create("NewUser3", "Pa$$w0rd3", "fakeIP", 4242))
         # Mauvais port
-        self.assertFalse(user_create(self.cursor, "NewUser3", "Pa$$w0rd3", "127.0.0.1", 99999))
+        self.assertFalse(self.test_db.user_create("NewUser3", "Pa$$w0rd3", "127.0.0.1", 99999))
 
         # Utilisateur déjà existant
-        self.assertFalse(user_create(self.cursor, "Gerard", "xXP@ssw0rdXx", "127.0.0.1", 4242))
-        self.assertFalse(user_create(self.cursor, "NewUser2", "xXP@ssw0rdXx", "127.0.0.1", 4242))
+        self.assertFalse(self.test_db.user_create("Gerard", "xXP@ssw0rdXx", "127.0.0.1", 4242))
+        self.assertFalse(self.test_db.user_create("NewUser2", "xXP@ssw0rdXx", "127.0.0.1", 4242))
 
         # Vérification de l'ajout des nouveaux utilisateurs
-        self.cursor.execute('SELECT username FROM `Users` WHERE username="NewUser1"')
-        self.assertEqual(len(self.cursor.fetchall()), 1)
+        cursor = self.test_db.conn.cursor()
+        cursor.execute('SELECT username FROM `Users` WHERE username="NewUser1"')
+        self.assertEqual(len(cursor.fetchall()), 1)
 
-        self.cursor.execute('SELECT username FROM `Users` WHERE username="NewUser2"')
-        self.assertEqual(len(self.cursor.fetchall()), 1)
+        cursor.execute('SELECT username FROM `Users` WHERE username="NewUser2"')
+        self.assertEqual(len(cursor.fetchall()), 1)
 
 
 if __name__ == '__main__':
