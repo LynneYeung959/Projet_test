@@ -1,7 +1,6 @@
 import argparse
 import json
 import logging
-import sqlite3
 
 from flask import Flask, request
 
@@ -18,11 +17,9 @@ def create_app(name: str = __name__) -> Flask:
 
     # Add user
     @app.route('/users', methods=['POST'])
+    @database.connect('users.db')
     def add_user():
-        # TODO : database decorator
-        data_base = sqlite3.connect('users.db')
-        data_base.row_factory = sqlite3.Row
-        cursor = data_base.cursor()
+        cursor = database.connection.cursor()
 
         data = json.loads(request.data.decode('utf-8'))
         username = data['username']
@@ -31,8 +28,6 @@ def create_app(name: str = __name__) -> Flask:
         port = data['port']
         result = database.user_create(cursor, username, password, ip_address, port)
 
-        data_base.commit()
-        data_base.close()
         if not result:
             logging.warning("Failed to register user")
             return "", 404

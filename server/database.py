@@ -1,10 +1,15 @@
 import sqlite3
 
+from functools import wraps
 from hashlib import md5
+from typing import Callable, List, Optional
 
 from client.crypto import KeyPair
 
 from .validation import is_username_valid, is_password_valid, is_ip_valid, is_port_valid
+
+
+connection: Optional[sqlite3.Connection] = None
 
 
 def is_user_registered(cursor: sqlite3.Cursor, username: str) -> bool:
@@ -56,3 +61,21 @@ def init_db():
 
     data_base.commit()
     data_base.close()
+
+
+def connect(db_name: str):
+
+    def decorator(function: Callable):
+        @wraps(function)
+        def wrapper(*args, **kwargs):
+            global connection
+            connection = sqlite3.connect('users.db')
+            connection.row_factory = sqlite3.Row
+            ret = function(*args, **kwargs)
+            connection.commit()
+            connection.close()
+            connection = None
+            return ret
+        return wrapper
+
+    return decorator
