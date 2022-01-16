@@ -28,8 +28,8 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
         data = json.loads(request.data.decode('utf-8'))
         username = data['username']
         password = data['password']
-        ip_address = data['ip']
-        port = data['port']
+        ip_address = request.remote_addr
+        port = request.environ.get('REMOTE_PORT')
         result = database.DB.user_create(username, password, ip_address, port)
 
         if not result:
