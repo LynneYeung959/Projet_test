@@ -2,7 +2,7 @@
 Run `python3 -m tests` from project root to run all test cases as a single TestSuite.
 Add the test modules you want to run to the `test_modules` list below.
 """
-
+import sys
 import unittest
 
 test_modules = [
@@ -16,7 +16,9 @@ suite = unittest.TestSuite()
 for t in test_modules:
     suite.addTest(unittest.defaultTestLoader.loadTestsFromName(t))
 
-unittest.TextTestRunner().run(suite)
+results = unittest.TextTestRunner().run(suite)
+if results.errors or results.failures:
+    sys.exit(1)
 
 # `print(suite)` will output something like :
 #
