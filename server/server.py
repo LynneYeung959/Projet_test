@@ -2,7 +2,7 @@ import argparse
 import json
 import logging
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 
 from . import database
 
@@ -36,13 +36,29 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
     # Get IP with username
     @app.route('/users/<string:username>/ip', methods=['GET'])
+    @database.connect(db)
     def get_ip(username):  # pylint: disable=unused-argument
-        return "", 405
+        if not database.DB.user_exists(username):
+            return "", 404
+        ip, port = database.DB.get_user_address(username)
+        return jsonify({'ip': ip, 'port': port}), 200
 
     # Delete user with username
     @app.route('/users/<string:username>', methods=['DELETE'])
-    def delete_user(username):  # pylint: disable=unused-argument
-        return "", 405
+    @database.connect(db)
+    def delete_user(username):
+        if not request.data:
+            return "", 422
+
+        data = json.loads(request.data.decode('utf-8'))
+
+        if 'password' not in data:
+            return "", 422
+
+        if not database.DB.user_login(username, data['password']):
+            return "", 403
+
+        return "", 200
 
     return app
 

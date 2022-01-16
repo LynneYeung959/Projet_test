@@ -2,7 +2,7 @@ import sqlite3
 
 from functools import wraps
 from hashlib import md5
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 
 from client.crypto import KeyPair
 
@@ -65,6 +65,12 @@ class Database:
         cursor = self.conn.cursor()
         cursor.execute("SELECT username FROM `Users` WHERE username=? AND password=?", [username, md5_pass.digest()])
         return len(cursor.fetchall()) > 0
+
+    def get_user_address(self, username: str) -> Tuple[str, int]:
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT ip, port FROM `Users` WHERE username=?", [username])
+        result = cursor.fetchone()
+        return result['ip'], result['port']
 
 
 DB:  Optional[Database] = None
