@@ -7,6 +7,9 @@ from flask import Flask, request
 from . import database
 
 
+__DEFAULT_DB = 'database.db'
+
+
 def create_app(name: str = __name__, *, db: str) -> Flask:
     app = Flask(name)
 
@@ -19,14 +22,12 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
     @app.route('/users', methods=['POST'])
     @database.connect(db)
     def add_user():
-        cursor = database.DB.conn.cursor()
-
         data = json.loads(request.data.decode('utf-8'))
         username = data['username']
         password = data['password']
         ip_address = data['ip']
         port = data['port']
-        result = database.user_create(cursor, username, password, ip_address, port)
+        result = database.DB.user_create(username, password, ip_address, port)
 
         if not result:
             logging.warning("Failed to register user")
@@ -55,7 +56,7 @@ def create_db(name: str, reset=False):
     init_db()
 
 
-def run(host=None, port=None, *, db_name='users.db', db_reset=False):
+def run(host=None, port=None, *, db_name=__DEFAULT_DB, db_reset=False):
     create_db(db_name, db_reset)
     app = create_app(db=db_name)
     app.run(host=host, port=port)
@@ -64,7 +65,7 @@ def run(host=None, port=None, *, db_name='users.db', db_reset=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Launch server at specified port')
     parser.add_argument('--port', default=80, type=int, help='specify server port (default : 80)')
-    parser.add_argument('--db', default='database.db', type=str, help='specify database file (default : database.db)')
+    parser.add_argument('--db', default=__DEFAULT_DB, type=str, help=f'specify database file (default : {__DEFAULT_DB})')
     parser.add_argument('--reset', default=False, type=bool, help='flag to reset database on launch')
     args = parser.parse_args()
 
