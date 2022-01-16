@@ -21,6 +21,9 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
     @app.route('/users', methods=['POST'])
     @database.connect(db)
     def add_user():
+        if not request.data:
+            return "", 400
+
         data = json.loads(request.data.decode('utf-8'))
         username = data['username']
         password = data['password']
@@ -29,7 +32,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
         result = database.DB.user_create(username, password, ip_address, port)
 
         if not result:
-            return "", 404
+            return "", 400
         return "", 200
 
     # Get IP with username

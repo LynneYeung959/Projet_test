@@ -43,9 +43,14 @@ class TestServer(unittest.TestCase):
         response = requests.post(self.server_url + "/users", json=payload)
         self.assertEqual(response.status_code, 200)
 
+        # correct request, but non valid password
         payload = {'username': 'alice', 'password': 'eau pet idée mer veille', 'ip': '0.0.0.14', 'port': 1236}
         response = requests.post(self.server_url + "/users", json=payload)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 400)
+
+        # incorrect request, missing data
+        response = requests.post(self.server_url + "/users")
+        self.assertEqual(response.status_code, 400)
 
         # test unsupported request type
         response = requests.get(self.server_url + "/users")
