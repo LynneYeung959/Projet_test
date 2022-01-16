@@ -38,7 +38,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
     # Get IP with username
     @app.route('/users/<string:username>/ip', methods=['GET'])
     @database.connect(db)
-    def get_ip(username):  # pylint: disable=unused-argument
+    def get_user_ip(username):
         if not database.DB.user_exists(username):
             return "", 404
         ip, port = database.DB.get_user_address(username)
@@ -58,6 +58,9 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         if not database.DB.user_login(username, data['password']):
             return "", 403
+
+        cursor = database.DB.conn.cursor()
+        cursor.execute("DELETE FROM `Users` WHERE username=?", [username])
 
         return "", 200
 
