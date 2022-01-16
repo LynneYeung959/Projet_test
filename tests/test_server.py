@@ -76,12 +76,12 @@ class TestServer(unittest.TestCase):
 
         # incomplete request (missing data)
         response = requests.delete(self.server_url + "/users/paul")
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 400)
 
         # incorrect parameters
         payload = {'pass': '1P@ssword'}
         response = requests.delete(self.server_url + "/users/paul", json=payload)
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 400)
 
         # correct request, but incorrect credentials
         payload = {'password': 'P@ssword'}

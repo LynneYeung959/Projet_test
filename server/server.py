@@ -30,7 +30,6 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
         result = database.DB.user_create(username, password, ip_address, port)
 
         if not result:
-            logging.warning("Failed to register user")
             return "", 404
         return "", 200
 
@@ -48,12 +47,12 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
     @database.connect(db)
     def delete_user(username):
         if not request.data:
-            return "", 422
+            return "", 400
 
         data = json.loads(request.data.decode('utf-8'))
 
         if 'password' not in data:
-            return "", 422
+            return "", 400
 
         if not database.DB.user_login(username, data['password']):
             return "", 403
