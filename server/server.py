@@ -11,6 +11,7 @@ __DEFAULT_DB = 'database.db'
 
 def create_app(name: str = __name__, *, db: str) -> Flask:
     app = Flask(name)
+    app.client_sessions = []
 
     # Check server state
     @app.route('/isalive', methods=['GET'])
@@ -79,7 +80,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
         if not database.DB.user_login(data['username'], data['password']):
             return "", 403
 
-        # create the session (maybe add it to global list ?)
+        app.client_sessions.append(data['username'])
 
         return "", 200
 
