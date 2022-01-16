@@ -66,7 +66,21 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
     # Login user
     @app.route('/sessions', methods=['POST'])
+    @database.connect(db)
     def create_session():
+        if not request.data:
+            return "", 400
+
+        data = json.loads(request.data.decode('utf-8'))
+
+        if 'username' not in data or 'password' not in data:
+            return "", 400
+
+        if not database.DB.user_login(data['username'], data['password']):
+            return "", 403
+
+        # create the session (maybe add it to global list ?)
+
         return "", 200
 
     return app
@@ -82,6 +96,8 @@ def create_db(name: str, reset=False):
 
 
 def run(host=None, port=None, *, db_name=__DEFAULT_DB, db_reset=False):
+    print(f"Running server at {host}:{port}")
+    print(f"Using database {db_name} (reset={db_reset})")
     create_db(db_name, db_reset)
     app = create_app(db=db_name)
     app.run(host=host, port=port)

@@ -13,7 +13,7 @@ class TestServer(unittest.TestCase):
     server_address = "127.0.0.1"
     server_port = "1234"
     server_url = "http://" + server_address + ":" + server_port
-    database_name = "test_database.db"
+    database_name = "tests/test_database.db"
 
     @classmethod
     def setUpClass(cls):
@@ -26,6 +26,7 @@ class TestServer(unittest.TestCase):
         @server.database.connect(cls.database_name)
         def create_test_users():
             server.database.DB.user_create("paul", "1P@ssword", "127.0.0.13", 1999)
+            server.database.DB.user_create("jean", "2P@ssword", "127.0.0.99", 2000)
 
         create_test_users()
 
@@ -62,7 +63,7 @@ class TestServer(unittest.TestCase):
 
     def test_get_ip(self):
         # correct request
-        response = requests.get(self.server_url + "/users/paul/ip")
+        response = requests.get(self.server_url + "/users/jean/ip")
         self.assertEqual(response.status_code, 200)
 
         # correct request, but nonexistent user
@@ -103,7 +104,7 @@ class TestServer(unittest.TestCase):
 
     def test_create_session(self):
         # correct request
-        payload = {'user': 'paul', 'password': '1P@ssword'}
+        payload = {'username': 'jean', 'password': '2P@ssword'}
         response = requests.post(self.server_url + "/sessions", json=payload)
         self.assertEqual(response.status_code, 200)
 
