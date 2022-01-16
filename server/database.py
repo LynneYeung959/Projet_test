@@ -77,7 +77,7 @@ def connect(db_name: str) -> Callable:
     def decorator(function: Callable):
         @wraps(function)
         def wrapper(*args, **kwargs):
-            global DB
+            global DB  # pylint: disable=global-statement
             DB = Database(db_name)
             ret = function(*args, **kwargs)
             DB = None
