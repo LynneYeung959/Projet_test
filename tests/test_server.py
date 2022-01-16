@@ -101,6 +101,30 @@ class TestServer(unittest.TestCase):
         response = requests.delete(self.server_url + "/users")
         self.assertEqual(response.status_code, 405)
 
+    def test_create_session(self):
+        # correct request
+        payload = {'user': 'paul', 'password': '1P@ssword'}
+        response = requests.post(self.server_url + "/sessions", json=payload)
+        self.assertEqual(response.status_code, 200)
+
+        # incomplete request (missing data)
+        response = requests.post(self.server_url + "/sessions")
+        self.assertEqual(response.status_code, 400)
+
+        # incorrect parameters
+        payload = {'username': 'paul'}
+        response = requests.post(self.server_url + "/sessions", json=payload)
+        self.assertEqual(response.status_code, 400)
+
+        # correct request, but incorrect credentials
+        payload = {'username': 'paul', 'password': 'P@ssword'}
+        response = requests.post(self.server_url + "/sessions", json=payload)
+        self.assertEqual(response.status_code, 403)
+
+        # unsupported request
+        response = requests.get(self.server_url + "/sessions")
+        self.assertEqual(response.status_code, 405)
+
 
 if __name__ == '__main__':
     unittest.main()

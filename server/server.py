@@ -64,6 +64,11 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         return "", 200
 
+    # Login user
+    @app.route('/sessions', methods=['POST'])
+    def create_session():
+        return "", 200
+
     return app
 
 
