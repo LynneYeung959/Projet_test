@@ -1,12 +1,8 @@
-import argparse
 import json
 
 from flask import Flask, request, jsonify
 
 from . import database
-
-
-__DEFAULT_DB = 'database.db'
 
 
 def create_app(name: str = __name__, *, db: str) -> Flask:
@@ -122,19 +118,9 @@ def create_db(name: str, reset=False):
     init_db()
 
 
-def run(host=None, port=None, *, db_name=__DEFAULT_DB, db_reset=False):
+def run(host=None, port=None, *, db_name, db_reset=False):
     print(f"Running server at {host}:{port}")
-    print(f"Using database {db_name} (reset={db_reset})")
+    print(f"Using database file '{db_name}' (reset={db_reset})")
     create_db(db_name, db_reset)
     app = create_app(db=db_name)
     app.run(host=host, port=port)
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Launch server at specified port')
-    parser.add_argument('--port', default=80, type=int, help='specify server port (default : 80)')
-    parser.add_argument('--db', default=__DEFAULT_DB, type=str, help=f'specify database file (default : {__DEFAULT_DB})')
-    parser.add_argument('--reset', default=False, type=bool, help='flag to reset database on launch')
-    args = parser.parse_args()
-
-    run("localhost", args.port, db_name=args.db, db_reset=args.reset)
