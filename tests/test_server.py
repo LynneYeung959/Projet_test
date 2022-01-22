@@ -146,8 +146,20 @@ class TestServer(unittest.TestCase):
         response = requests.delete(self.server_url + "/sessions/jean", json=payload)
         self.assertEqual(response.status_code, 403)
 
-        # unsupported request
+    def test_get_session(self):
+        payload = {'username': 'jean', 'password': '2P@ssword'}
+        response = requests.post(self.server_url + "/sessions", json=payload)
+
+        # correct request
         response = requests.get(self.server_url + "/sessions/jean")
+        self.assertEqual(response.status_code, 200)
+
+        # correct request, but unexistant user
+        response = requests.get(self.server_url + "/sessions/da_void")
+        self.assertEqual(response.status_code, 404)
+
+        # unsupported request
+        response = requests.post(self.server_url + "/sessions/jean")
         self.assertEqual(response.status_code, 405)
 
 
