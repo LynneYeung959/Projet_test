@@ -103,6 +103,14 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         return "", 200
 
+    # Check if user logged in
+    @app.route('/sessions/<string:username>', methods=['GET'])
+    @database.connect(db)
+    def get_session(username):
+        if username in app.client_sessions:
+            return "", 200
+        return "", 404
+
     return app
 
 
