@@ -91,4 +91,3 @@ dest_address = f"http://{data['ip']}:{data['port']}"
 while True:
     msg = input("> ")
     requests.post(dest_address + '/msg', data=msg)
-
