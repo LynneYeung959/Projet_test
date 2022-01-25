@@ -72,6 +72,12 @@ class Database:
         result = cursor.fetchone()
         return result['ip'], result['port']
 
+    def get_private_key(self, username: str) -> str:
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT privatekey FROM `Users` WHERE username=?", [username])
+        result = cursor.fetchone()
+        return result['privatekey']
+
 DB:  Optional[Database] = None
 
 
