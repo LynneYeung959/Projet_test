@@ -9,8 +9,9 @@ import requests
 from .msg_server import run_message_server
 
 parser = argparse.ArgumentParser(description='Launch client connected at specified address and port')
-parser.add_argument('--addr', default='localhost', type=str, help='specify server address (default : localhost)')
-parser.add_argument('--port', default=80, type=int, help='specify server port (default : 80)')
+parser.add_argument('--addr', default='localhost', type=str, help='specify name server address (default : localhost)')
+parser.add_argument('--port', default=80, type=int, help='specify name server port (default : 80)')
+parser.add_argument('--local-port', default=5000, type=int, help='specify your local server port (default : 5000)')
 args = parser.parse_args()
 
 server_url = f"http://{args.addr}:{args.port}"
@@ -63,12 +64,31 @@ else:
     print("Logged in successfully !")
 
 # user logged in, run their message server
-Process(target=run_message_server, kwargs={'port': 1234}).start()
+Process(target=run_message_server, kwargs={'port': args.local_port}).start()
 time.sleep(3)
 
+# here : print connected users list
+dest = input("You want to talk with : ")
+response = requests.get(server_url + '/sessions/' + dest)
+
+while response.status_code != 200:
+    print(f"{dest} is not connected right now")
+    # here : print connected users list again to see if someone just connected
+    dest = input("You want to talk with : ")
+    response = requests.get(server_url + '/sessions/' + dest)
+
+response = requests.get(server_url + '/users/' + dest + '/ip')
+
+while response.status_code != 200:
+    print(f'User {dest} is not connected !')
+    dest = input("You want to talk with : ")
+    response = requests.get(server_url + '/users/' + dest + '/ip')
+
+data = response.json()
+dest_address = f"http://{data['ip']}:{data['port']}"
 
 # wait for their input
 while True:
     msg = input("> ")
-    requests.post("http://localhost:1235/msg", data=msg)
+    requests.post(dest_address + '/msg', data=msg)
 
