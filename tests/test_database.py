@@ -24,7 +24,7 @@ class TestDatabase(unittest.TestCase):
             ip_addr = "127.0.0.1"
             port = 4242
             cls.test_db.conn.cursor().execute("INSERT INTO `users` VALUES(?, ?, ?, ?, ?, ?)",
-                                              [username, md5_pass, keys.public, keys.private, ip_addr, port])
+                                              [username, md5_pass, keys.private, keys.public, ip_addr, port])
 
     @classmethod
     def tearDownClass(cls):
@@ -101,8 +101,8 @@ class TestDatabase(unittest.TestCase):
 
         # Tests de get_private_key
         self.assertIsInstance(self.test_db.get_private_key("Gerard"), str)
-        self.assertEqual(self.test_db.get_private_key("Gerard").find("-----BEGIN PRIVATE KEY-----"), 0)
-        self.assertEqual(self.test_db.get_private_key("Gerard").find("-----END PRIVATE KEY-----"), 0)
+        self.assertNotEqual(self.test_db.get_private_key("Gerard").find("-----BEGIN RSA PRIVATE KEY-----"), -1)
+        self.assertNotEqual(self.test_db.get_private_key("Gerard").find("-----END RSA PRIVATE KEY-----"), -1)
         self.assertEqual(self.test_db.get_private_key("Gerard").find("-----BEGIN PUBLIC KEY-----"), -1)
         self.assertIsInstance(self.test_db.get_private_key("Noobmaster69"), str)
 
