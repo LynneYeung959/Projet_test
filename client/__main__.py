@@ -1,6 +1,7 @@
 import argparse
 import sys
 import time
+import os
 
 from multiprocessing import Process
 
@@ -108,5 +109,31 @@ dest_address = f"http://{data['ip']}:{data['port']}"
 
 # wait for their input
 while True:
-    msg = input("\r> ")
-    requests.post(dest_address + '/msg', json={'username': username, 'msg': msg})
+    try:
+        msg = input("\r> ")
+
+        if (msg == "/exit"):
+            requests.delete(server_url + "/sessions/" + username, json={'password': password})
+            requests.post(dest_address + '/msg', json={'username': username, 'msg': msg})
+            os._exit(1)
+
+        elif (msg == "/list"):
+            # print connected users list
+            print("Users online :")
+            response = requests.get(server_url + '/sessions')
+            user_list = response.json()
+            for user in user_list:
+                if user == username:
+                    print("* " + user + " (You)")
+                else:
+                    print("* " + user)
+            print("")
+
+        else:
+            requests.post(dest_address + '/msg', json={'username': username, 'msg': msg})
+
+    except KeyboardInterrupt:
+        requests.delete(server_url + "/sessions/" + username, json={'password': password})
+        msg = "/exit"
+        requests.post(dest_address + '/msg', json={'username': username, 'msg': msg})
+        os._exit(1)
