@@ -41,6 +41,33 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
         ip, port = database.DB.get_user_address(username)
         return jsonify({'ip': ip, 'port': port}), 200
 
+    # Get public key with username
+    @app.route('/users/<string:username>/keys/public', methods=['GET'])
+    @database.connect(db)
+    def get_user_public_key(username):
+        if not database.DB.user_exists(username):
+            return "", 404
+
+        key = database.DB.get_public_key(username)
+
+        return jsonify({'key': key}), 200
+
+    # Get private key with username and password
+    @app.route('/users/<string:username>/keys/private', methods=['GET'])
+    @database.connect(db)
+    def get_user_private_key(username):
+        password = request.args.get('secret')
+
+        if not database.DB.user_exists(username):
+            return "", 404
+
+        if not password or not database.DB.user_login(username, password):
+            return "", 400
+
+        key = database.DB.get_private_key(username)
+
+        return jsonify({'key': key}), 200
+
     # Delete user with username
     @app.route('/users/<string:username>', methods=['DELETE'])
     @database.connect(db)
