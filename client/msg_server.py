@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask, request
 
 
@@ -10,8 +12,10 @@ def run_message_server(port: int):
 
     @app.route('/msg', methods=['POST'])
     def on_msg():
-        msg = str(request.data).encode()
-        print("> received :", msg)
+        data = json.loads(request.data.decode('utf-8'))
+        if 'username' not in data or 'msg' not in data:
+            return "", 400
+        print(f"\r{data['username']} > {data['msg']}\n>")
         return "", 200
 
     app.run(port=port)

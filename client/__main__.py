@@ -37,28 +37,29 @@ if response.status_code == 404:
           f"Create your account by entering a new password\n"
           f"(at least 8 characters, at least 1 uppercase, 1 digit and 1 special character)")
     password = input("> ")
-    data = {'username': username, 'password': password}
+    data = {'username': username, 'password': password, 'port': args.local_port}
     response = requests.post(server_url + '/users', json=data)
     while response.status_code != 200:
         print("Bad inputs, please try again :")
         username = input("Your username : ")
         password = input("Your password : ")
-        data = {'username': username, 'password': password}
+        data = {'username': username, 'password': password, 'port': args.local_port}
         response = requests.post(server_url + '/users', json=data)
 
+    response = requests.post(server_url + '/sessions', json=data)
     print("Account created successfully !")
 
 else:
     print(f"Welcome back {username} !\n"
           f"Please enter your password to log in :")
     password = input("> ")
-    data = {'username': username, 'password': password}
+    data = {'username': username, 'password': password, 'port': args.local_port}
     response = requests.post(server_url + '/sessions', json=data)
     while response.status_code != 200:
         print("Bad credentials, please try again :")
         username = input("Your username : ")
         password = input("Your password : ")
-        data = {'username': username, 'password': password}
+        data = {'username': username, 'password': password, 'port': args.local_port}
         response = requests.post(server_url + '/sessions', json=data)
 
     print("Logged in successfully !")
@@ -89,5 +90,5 @@ dest_address = f"http://{data['ip']}:{data['port']}"
 
 # wait for their input
 while True:
-    msg = input("> ")
-    requests.post(dest_address + '/msg', data=msg)
+    msg = input("\r> ")
+    requests.post(dest_address + '/msg', json={'username': username, 'msg': msg})
