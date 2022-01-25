@@ -200,11 +200,11 @@ class TestServer(unittest.TestCase):
 
         # correct request, but missing 'secret' argument
         response = requests.get(self.server_url + "/users/leon/keys/private")
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 403)
 
         # correct request, but wrong 'secret' argument
         response = requests.get(self.server_url + "/users/leon/keys/private?secret=wrong_password")
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 403)
 
 
 if __name__ == '__main__':
