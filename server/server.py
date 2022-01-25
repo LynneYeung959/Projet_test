@@ -66,7 +66,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
             return "", 404
 
         if not password or not database.DB.user_login(username, password):
-            return "", 400
+            return "", 403
 
         key = database.DB.get_private_key(username)
 
