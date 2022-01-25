@@ -45,6 +45,24 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
         ip, port = database.DB.get_user_address(username)
         return jsonify({'ip': ip, 'port': port}), 200
 
+    # Update port with username and password
+    @app.route('/users/<string:username>/ip', methods=['PUT'])
+    @database.connect(db)
+    def update_user_ip(username):
+        if not database.DB.user_exists(username):
+            return "", 404
+
+        data = json.loads(request.data.decode('utf-8'))
+
+        if 'password' not in data or 'port' not in data:
+            return "", 400
+
+        if not database.DB.user_login(username, data['password']):
+            return "", 403
+
+        database.DB.update_user_port(username, data['port'])
+        return "", 200
+
     # Get public key with username
     @app.route('/users/<string:username>/keys/public', methods=['GET'])
     @database.connect(db)
