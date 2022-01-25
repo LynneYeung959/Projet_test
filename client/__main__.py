@@ -27,12 +27,14 @@ except requests.exceptions.ConnectionError:
 
 print("Your username (at least 3 characters, only letters or digits) : ")
 username = input("> ")
+ip: str
+port: int
 
 # check if user exists by getting its IP from server
-response = requests.get(server_url + '/users/' + username + '/ip')
+get_ip_response = requests.get(server_url + '/users/' + username + '/ip')
 
 # connect and login user
-if response.status_code == 404:
+if get_ip_response.status_code == 404:
     print(f"Welcome {username} !\n"
           f"Create your account by entering a new password\n"
           f"(at least 8 characters, at least 1 uppercase, 1 digit and 1 special character)")
@@ -61,6 +63,11 @@ else:
         password = input("Your password : ")
         data = {'username': username, 'password': password, 'port': args.local_port}
         response = requests.post(server_url + '/sessions', json=data)
+
+    get_ip_data = get_ip_response.json()
+    port = get_ip_data['port']
+    if port != args.local_port:
+        requests.put(server_url + '/users/' + username + '/ip', json={'password': password, 'port': args.local_port})
 
     print("Logged in successfully !")
 

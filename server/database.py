@@ -72,6 +72,10 @@ class Database:
         result = cursor.fetchone()
         return result['ip'], result['port']
 
+    def update_user_port(self, username: str, port: int):
+        cursor = self.conn.cursor()
+        cursor.execute("UPDATE `Users` SET port=? WHERE username=?", [port, username])
+
     def get_private_key(self, username: str) -> str:
         cursor = self.conn.cursor()
         cursor.execute("SELECT privatekey FROM `Users` WHERE username=?", [username])
