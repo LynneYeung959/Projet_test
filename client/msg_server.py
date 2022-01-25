@@ -15,7 +15,12 @@ def run_message_server(port: int):
         data = json.loads(request.data.decode('utf-8'))
         if 'username' not in data or 'msg' not in data:
             return "", 400
-        print(f"\r{data['username']} > {data['msg']}\n>")
+
+        if (data['msg'] == "/exit"):
+            print(f"{data['username']} left the chat.")
+        else:
+            print(f"\r{data['username']} > {data['msg']}\n>")
+
         return "", 200
 
     app.run(port=port)
