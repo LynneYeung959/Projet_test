@@ -14,7 +14,7 @@ class KeyPair:
             return None
         return KeyPair(RSA.generate(size, Random.new().read))
 
-    def __init__(self, rsa_key: RSA.RsaKey):
+    def __init__(self, rsa_key):
         """ Initialize a KeyPair from a private RSA key """
         assert rsa_key.has_private()
         self.__key_private = rsa_key
