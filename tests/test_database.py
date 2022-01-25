@@ -107,6 +107,11 @@ class TestDatabase(unittest.TestCase):
         self.assertIsInstance(self.test_db.get_private_key("Noobmaster69"), str)
 
         # Tests de get_public_key
+        self.assertIsInstance(self.test_db.get_public_key("Gerard"), str)
+        self.assertNotEqual(self.test_db.get_public_key("Gerard").find("-----BEGIN PUBLIC KEY-----"), -1)
+        self.assertNotEqual(self.test_db.get_public_key("Gerard").find("-----END PUBLIC KEY-----"), -1)
+        self.assertEqual(self.test_db.get_public_key("Gerard").find("-----BEGIN RSA PRIVATE KEY-----"), -1)
+        self.assertIsInstance(self.test_db.get_public_key("Noobmaster69"), str)
 
 if __name__ == '__main__':
     unittest.main()
