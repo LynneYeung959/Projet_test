@@ -78,6 +78,12 @@ class Database:
         result = cursor.fetchone()
         return result['privatekey']
 
+    def get_public_key(self, username: str) -> str:
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT publickey FROM `Users` WHERE username=?", [username])
+        result = cursor.fetchone()
+        return result['publickey']
+
 DB:  Optional[Database] = None
 
 
