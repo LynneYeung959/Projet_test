@@ -1,8 +1,12 @@
 import argparse
 import sys
+import time
+
+from multiprocessing import Process
 
 import requests
 
+from .msg_server import run_message_server
 
 parser = argparse.ArgumentParser(description='Launch client connected at specified address and port')
 parser.add_argument('--addr', default='localhost', type=str, help='specify server address (default : localhost)')
@@ -34,7 +38,7 @@ if response.status_code == 404:
     password = input("> ")
     data = {'username': username, 'password': password}
     response = requests.post(server_url + '/users', json=data)
-    while response.status_code == 400:
+    while response.status_code != 200:
         print("Bad inputs, please try again :")
         username = input("Your username : ")
         password = input("Your password : ")
@@ -49,7 +53,7 @@ else:
     password = input("> ")
     data = {'username': username, 'password': password}
     response = requests.post(server_url + '/sessions', json=data)
-    while response.status_code == 400:
+    while response.status_code != 200:
         print("Bad credentials, please try again :")
         username = input("Your username : ")
         password = input("Your password : ")
@@ -58,5 +62,13 @@ else:
 
     print("Logged in successfully !")
 
-# user logged in
-...
+# user logged in, run their message server
+Process(target=run_message_server, kwargs={'port': 1234}).start()
+time.sleep(3)
+
+
+# wait for their input
+while True:
+    msg = input("> ")
+    requests.post("http://localhost:1235/msg", data=msg)
+
