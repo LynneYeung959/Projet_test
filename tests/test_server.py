@@ -25,6 +25,7 @@ class TestServer(unittest.TestCase):
 
         @server.database.connect(cls.database_name)
         def create_test_users():
+            server.database.DB.user_create("leon", "0P@ssword", "127.0.0.19", 1998)
             server.database.DB.user_create("paul", "1P@ssword", "127.0.0.13", 1999)
             server.database.DB.user_create("jean", "2P@ssword", "127.0.0.99", 2000)
 
@@ -65,6 +66,11 @@ class TestServer(unittest.TestCase):
         # correct request
         response = requests.get(self.server_url + "/users/jean/ip")
         self.assertEqual(response.status_code, 200)
+
+        # check returned json data
+        data = response.json()
+        self.assertTrue('ip' in data)
+        self.assertTrue('port' in data)
 
         # correct request, but nonexistent user
         response = requests.get(self.server_url + "/users/12$/ip")
@@ -161,6 +167,44 @@ class TestServer(unittest.TestCase):
         # unsupported request
         response = requests.post(self.server_url + "/sessions/jean")
         self.assertEqual(response.status_code, 405)
+
+    def test_get_public_key(self):
+        # correct request
+        response = requests.get(self.server_url + "/users/leon/keys/public")
+        self.assertEqual(response.status_code, 200)
+
+        # check returned json data
+        data = response.json()
+        self.assertTrue('key' in data)
+
+        # correct request, but unexistant user
+        response = requests.get(self.server_url + "/users/da_void/keys/public")
+        self.assertEqual(response.status_code, 404)
+
+        # unsupported request
+        response = requests.post(self.server_url + "/users/leon/keys/public")
+        self.assertEqual(response.status_code, 405)
+
+    def test_get_private_key(self):
+        # correct request
+        response = requests.get(self.server_url + "/users/leon/keys/private?secret=0P@ssword")
+        self.assertEqual(response.status_code, 200)
+
+        # check returned json data
+        data = response.json()
+        self.assertTrue('key' in data)
+
+        # correct request, but unexistant user
+        response = requests.get(self.server_url + "/users/da_void/keys/private?secret=da_p@ssw0rdo")
+        self.assertEqual(response.status_code, 404)
+
+        # correct request, but missing 'secret' argument
+        response = requests.get(self.server_url + "/users/leon/keys/private")
+        self.assertEqual(response.status_code, 400)
+
+        # correct request, but wrong 'secret' argument
+        response = requests.get(self.server_url + "/users/leon/keys/private?secret=wrong_password")
+        self.assertEqual(response.status_code, 400)
 
 
 if __name__ == '__main__':
