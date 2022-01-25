@@ -72,7 +72,6 @@ class Database:
         result = cursor.fetchone()
         return result['ip'], result['port']
 
-
 DB:  Optional[Database] = None
 
 
