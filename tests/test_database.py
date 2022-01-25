@@ -91,6 +91,8 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(len(cursor.fetchall()), 1)
 
     def test_getter_functions(self):
+        private_key_text = "-----BEGIN PRIVATE KEY-----"
+        public_key_text = "-----BEGIN PUBLIC KEY-----"
         # Tests de get_user_address
         self.assertIsInstance(self.test_db.get_user_address("Gerard"), tuple)
         self.assertIsInstance(self.test_db.get_user_address("Gerard")[0], str)
@@ -98,6 +100,11 @@ class TestDatabase(unittest.TestCase):
         self.assertIsInstance(self.test_db.get_user_address("Noobmaster69"), tuple)
 
         # Tests de get_private_key
+        self.assertIsInstance(self.test_db.get_private_key("Gerard"), str)
+        self.assertEqual(self.test_db.get_private_key("Gerard").find("-----BEGIN PRIVATE KEY-----"), 0)
+        self.assertEqual(self.test_db.get_private_key("Gerard").find("-----END PRIVATE KEY-----"), 0)
+        self.assertEqual(self.test_db.get_private_key("Gerard").find("-----BEGIN PUBLIC KEY-----"), -1)
+        self.assertIsInstance(self.test_db.get_private_key("Noobmaster69"), str)
 
         # Tests de get_public_key
 
