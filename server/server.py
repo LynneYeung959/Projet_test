@@ -22,10 +22,14 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
             return "", 400
 
         data = json.loads(request.data.decode('utf-8'))
+
+        if 'username' not in data or 'password' not in data or 'port' not in data:
+            return "", 400
+
         username = data['username']
         password = data['password']
         ip_address = request.remote_addr
-        port = request.environ.get('REMOTE_PORT')
+        port = data['port']
         result = database.DB.user_create(username, password, ip_address, port)
 
         if not result:
