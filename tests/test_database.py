@@ -1,5 +1,6 @@
 import unittest
 from hashlib import md5
+from typing import Callable, Optional, Tuple
 
 from server import database
 from client.crypto import KeyPair
@@ -89,6 +90,16 @@ class TestDatabase(unittest.TestCase):
         cursor.execute('SELECT username FROM `Users` WHERE username="NewUser2"')
         self.assertEqual(len(cursor.fetchall()), 1)
 
+    def test_getter_functions(self):
+        # Tests de get_user_address
+        self.assertIsInstance(self.test_db.get_user_address("Gerard"), tuple)
+        self.assertIsInstance(self.test_db.get_user_address("Gerard")[0], str)
+        self.assertIsInstance(self.test_db.get_user_address("Gerard")[1], int)
+        self.assertIsInstance(self.test_db.get_user_address("Noobmaster69"), tuple)
+
+        # Tests de get_private_key
+
+        # Tests de get_public_key
 
 if __name__ == '__main__':
     unittest.main()
