@@ -110,6 +110,13 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         return "", 200
 
+    # List users online
+    @app.route('/sessions', methods=['GET'])
+    @database.connect(db)
+    def get_sessions():
+        data = json.dumps(app.client_sessions)
+        return data, 200
+
     # Login user
     @app.route('/sessions', methods=['POST'])
     @database.connect(db)

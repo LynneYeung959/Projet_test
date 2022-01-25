@@ -75,7 +75,18 @@ else:
 Process(target=run_message_server, kwargs={'port': args.local_port}).start()
 time.sleep(3)
 
-# here : print connected users list
+# print connected users list
+print("Users online :")
+response = requests.get(server_url + '/sessions')
+user_list = response.json()
+for user in user_list:
+    if user == username:
+        print("* " + user + " (You)")
+    else:
+        print("* " + user)
+
+print("")
+
 dest = input("You want to talk with : ")
 response = requests.get(server_url + '/sessions/' + dest)
 
