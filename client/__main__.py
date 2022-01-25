@@ -45,6 +45,7 @@ if response.status_code == 404:
         password = input("Your password : ")
         data = {'username': username, 'password': password}
         response = requests.post(server_url + '/users', json=data)
+        response = requests.post(server_url + '/sessions', json=data)
 
     print("Account created successfully !")
 
@@ -90,4 +91,9 @@ dest_address = f"http://{data['ip']}:{data['port']}"
 # wait for their input
 while True:
     msg = input("> ")
-    requests.post(dest_address + '/msg', data=msg)
+    if (msg == "/exit"):
+        response = requests.delete(server_url + username)
+        print("Disconnected")
+    
+    else:
+        requests.post(dest_address + '/msg', data=msg)
