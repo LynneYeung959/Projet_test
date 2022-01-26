@@ -2,7 +2,7 @@ import unittest
 from Crypto.PublicKey import RSA
 from Crypto import Random
 
-from client.crypto import KeyPair
+from client.crypto import *
 
 
 class TestCrypto(unittest.TestCase):
@@ -56,40 +56,42 @@ class TestCrypto(unittest.TestCase):
     def test_encryption_message(self):
         # Vérification du format du message à chiffrer
         msg = "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"
-        self.assertIsInstance(self.keypair2048.encrypt("A"), str)
-        self.assertIsInstance(self.keypair2048.encrypt(msg), str)
-        self.assertEqual(self.keypair2048.encrypt(""), "")
+        self.assertIsInstance(encrypt(self.keypair2048.public, "A"), str)
+        self.assertIsInstance(encrypt(self.keypair2048.public, msg), str)
+        self.assertEqual(encrypt(self.keypair2048.public, ""), "")
 
     def test_encryption_key(self):
         # Vérification de la clé
-        self.assertIsInstance(self.keypair2048.encrypt("message"), str)
+        self.assertEqual(encrypt("Fake key:CBVscPeuYkXW4/jjhinp", "message"), None)
+        self.assertIsInstance(encrypt(self.keypair2048.public, "message"), str)
 
     def test_encryption_content(self):
         # Vérification du chiffrement (différent du message d'origine)
         long_msg = "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"
-        self.assertNotEqual(self.keypair1024.encrypt("a"), "a")
-        self.assertNotEqual(self.keypair2048.encrypt("message"), "message")
-        self.assertNotEqual(self.keypair2048.encrypt(long_msg), long_msg)
+        self.assertNotEqual(encrypt(self.keypair1024.public, "a"), "a")
+        self.assertNotEqual(encrypt(self.keypair2048.public, "message"), "message")
+        self.assertEqual(encrypt(self.keypair1024.public, long_msg), None) # msg too long
 
+    # TO BE MODIFIED
     # Tests sur le déchiffrement d'un message
 
     def test_decryption_message(self):
         # Vérification du format du message à déchiffrer
-        self.assertIsNone(self.keypair2048.decrypt("Fake_crypt_msg:CBVscPeuYkXW4/jjhinp"))
-        self.assertEqual(self.keypair2048.decrypt(""), "")
-        self.assertIsInstance(self.keypair2048.decrypt(self.keypair2048.encrypt("A")), str)
+        self.assertIsNone(decrypt(self.keypair2048.private, "Fake_crypt_msg:CBVscPeuYkXW4/jjhinp"))
+        self.assertEqual(decrypt(self.keypair2048.private, ""), "")
+        self.assertIsInstance(decrypt(self.keypair2048.private, encrypt(self.keypair2048.public,"A")), str)
 
     def test_decryption_key(self):
         # Vérification de la clé
-        self.assertIsNone(self.keypair1024.decrypt(self.keypair2048.encrypt("A")))
-        self.assertIsNone(self.keypair4096.decrypt(self.keypair2048.encrypt("A")))
+        self.assertIsNone(decrypt(self.keypair1024.private, encrypt(self.keypair2048.public, "A")))
+        self.assertIsNone(decrypt(self.keypair4096.private, encrypt(self.keypair2048.public, "A")))
 
     def test_decryption_content(self):
         # Vérification du déchiffrement
         msg = "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"
-        self.assertEqual(self.keypair2048.decrypt(self.keypair2048.encrypt("a")), "a")
-        self.assertEqual(self.keypair2048.decrypt(self.keypair2048.encrypt("Hello World !")), "Hello World !")
-        self.assertEqual(self.keypair2048.decrypt(self.keypair2048.encrypt(msg)), msg)
+        self.assertEqual(decrypt(self.keypair2048.private, encrypt(self.keypair2048.public, "a")), "a")
+        self.assertEqual(decrypt(self.keypair2048.private, encrypt(self.keypair2048.public, "Hello World !")), "Hello World !")
+        self.assertEqual(decrypt(self.keypair2048.private, encrypt(self.keypair2048.public, msg)), msg)
 
 
 if __name__ == '__main__':
