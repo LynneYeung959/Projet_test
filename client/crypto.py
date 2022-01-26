@@ -19,8 +19,6 @@ class KeyPair:
         assert rsa_key.has_private()
         self.__key_private = rsa_key
         self.__key_public = rsa_key.publickey()
-        self.__encryptor = PKCS1_OAEP.new(self.__key_public)
-        self.__decryptor = PKCS1_OAEP.new(self.__key_private)
 
     @property
     def public(self) -> str:
@@ -30,28 +28,52 @@ class KeyPair:
     def private(self) -> str:
         return self.__key_private.export_key().decode()
 
-    def encrypt(self, message: str) -> Optional[str]:
-        """ Returns the message encrypted using the public key and encoded in base64 """
-        if message == "":
-            return ""
 
-        try:
-            crypted_msg = self.__encryptor.encrypt(message.encode())
-        except ValueError:
-            return None
+def encrypt(public_key: str, message: str) -> Optional[str]:
+    """
+    Returns the message encrypted using the public key (string)
+    """
+    if message == "":
+        return ""
 
-        return base64.b64encode(crypted_msg).decode()
+    # Convert public_key to RSA_key_format if valid
+    try:
+        key = RSA.importKey(public_key)
+    except ValueError:
+        return None
 
-    def decrypt(self, b64_message: str) -> Optional[str]:
-        """ Returns the plain text message decrypted using the private key """
-        if b64_message == "":
-            return ""
+    encryptor = PKCS1_OAEP.new(key)
+    try:
+        msg_crypt = base64.b64encode(encryptor.encrypt(message.encode()))
+    except ValueError:
+        return None
 
-        message = base64.b64decode(b64_message.encode())
+    # Convert to text (string)
+    msg_crypt_str = msg_crypt.decode()
 
-        try:
-            decrypted_msg = self.__decryptor.decrypt(message)
-        except ValueError:
-            return None
+    return msg_crypt_str
 
-        return decrypted_msg.decode()
+def decrypt(private_key: str, message: str) -> Optional[str]:
+    """
+    Returns the plain text message decrypted using the private key
+    """
+    if message == "":
+        return ""
+
+    # Convert private_key to RSA_key_format if valid
+    try:
+        key = RSA.importKey(private_key)
+    except ValueError:
+        return None
+
+    decryptor = PKCS1_OAEP.new(key)
+
+    try:
+        message = decryptor.decrypt(base64.b64decode(message.encode()))
+    except ValueError:
+        return None
+
+    # Convert to text (string)
+    message_str = message.decode()
+
+    return message_str
