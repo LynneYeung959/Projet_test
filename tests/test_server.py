@@ -41,12 +41,12 @@ class TestServer(unittest.TestCase):
 
     def test_add_user_request(self):
         # test correct user insertion
-        payload = {'username': 'albert', 'password': '1MdpV@lide', 'ip': '0.0.0.1', 'port': 1235}
+        payload = {'username': 'albert', 'password': '1MdpV@lide', 'port': 1235}
         response = requests.post(self.server_url + "/users", json=payload)
         self.assertEqual(response.status_code, 200)
 
         # correct request, but non valid password
-        payload = {'username': 'alice', 'password': 'eau pet idée mer veille', 'ip': '0.0.0.14', 'port': 1236}
+        payload = {'username': 'alice', 'password': 'eau pet idée mer veille', 'port': 1236}
         response = requests.post(self.server_url + "/users", json=payload)
         self.assertEqual(response.status_code, 400)
 
