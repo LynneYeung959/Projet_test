@@ -1,4 +1,5 @@
 import argparse
+from inspect import signature
 import sys
 import time
 
@@ -7,7 +8,7 @@ from multiprocessing import Process
 import requests
 
 from .msg_server import run_message_server
-from .crypto import encrypt
+from .crypto import encrypt, sign
 
 parser = argparse.ArgumentParser(description='Launch client connected at specified address and port')
 parser.add_argument('--addr', default='localhost', type=str, help='specify name server address (default : localhost)')
@@ -81,7 +82,7 @@ private_key_data = response.json()
 my_private_key = private_key_data['key']
 
 # user logged in, run their message server
-Process(target=run_message_server, kwargs={'local_port': args.local_port, 'private_key': my_private_key}).start()
+Process(target=run_message_server, kwargs={'server_url': server_url, 'local_port': args.local_port, 'private_key': my_private_key}).start()
 time.sleep(3)
 
 # here : print connected users list
@@ -117,6 +118,9 @@ dest_pub_key = data['key']
 while True:
     msg = input("\r> ")
 
+    # encrypt
     encrypted_msg = encrypt(dest_pub_key, msg)
+    # sign
+    msg_signature = sign(my_private_key, encrypted_msg)
 
-    requests.post(dest_address + '/msg', json={'username': username, 'msg': encrypted_msg})
+    requests.post(dest_address + '/msg', json={'username': username, 'msg': encrypted_msg, 'signature': msg_signature})
