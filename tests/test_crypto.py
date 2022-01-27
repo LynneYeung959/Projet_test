@@ -2,7 +2,7 @@ import unittest
 from Crypto.PublicKey import RSA
 from Crypto import Random
 
-from client.crypto import KeyPair, encrypt, decrypt
+from client.crypto import KeyPair, encrypt, decrypt, sign, verify
 
 
 class TestCrypto(unittest.TestCase):
@@ -72,7 +72,6 @@ class TestCrypto(unittest.TestCase):
         self.assertNotEqual(encrypt(self.keypair2048.public, "message"), "message")
         self.assertEqual(encrypt(self.keypair1024.public, long_msg), None) # msg too long
 
-    # TO BE MODIFIED
     # Tests sur le déchiffrement d'un message
 
     def test_decryption_message(self):
@@ -93,6 +92,22 @@ class TestCrypto(unittest.TestCase):
         self.assertEqual(decrypt(self.keypair2048.private, encrypt(self.keypair2048.public, "")), "")
         self.assertEqual(decrypt(self.keypair2048.private, encrypt(self.keypair2048.public, msg)), msg)
 
+    # Tests sur la signature d'un message
+
+    def test_sign_msg(self):
+        # type return verification (to avoid conflicts with bytes)
+        self.assertIsInstance(sign(self.keypair2048.private, ""), str)
+        self.assertIsInstance(sign(self.keypair2048.private, "a"), str)
+        # public VS private key inversion
+        self.assertIsNone(sign(self.keypair2048.public, ""))
+        self.assertRaises(TypeError, sign(self.keypair2048.public, ""))
+        self.assertIsNone(verify(self.keypair2048.private, "bla", "blo"))
+        self.assertRaises(TypeError, verify(self.keypair2048.private, "bla", "blo"))
+        # implementation
+        self.assertEqual(verify(self.keypair2048.public, "", sign(self.keypair2048.private, "")), "OK")
+        self.assertEqual(verify(self.keypair2048.public, "a", sign(self.keypair2048.private, "a")), "OK")
+            # we don't care about message integrity, just check sender integrity
+        self.assertEqual(verify(self.keypair2048.public, "BONJOUR !", sign(self.keypair2048.private, "bonjour!")), "OK")
 
 if __name__ == '__main__':
     unittest.main()
