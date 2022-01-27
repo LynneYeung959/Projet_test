@@ -110,19 +110,19 @@ class Client():
             print(f"Welcome back {self.username} !\n"
                   f"Password :")
             self.password = input("> ")
-            data = {'username': self.username, 'password': self.password, 'port': self.port}
+            data = {'username': self.username, 'password': self.password}
             response = requests.post(self.server_url + '/sessions', json=data)
             while response.status_code != 200:
                 print("Bad credentials, please try again :")
                 self.username = input("Your username : ")
                 self.password = input("Your password : ")
-                data = {'username': self.username, 'password': self.password, 'port': self.port}
+                data = {'username': self.username, 'password': self.password}
                 response = requests.post(self.server_url + '/sessions', json=data)
 
             get_ip_data = get_ip_response.json()
             if get_ip_data['port'] != self.port:
-                requests.put(self.server_url + '/users/' + self.username + '/ip', \
-                json={'password': self.password, 'port': self.port})
+                requests.put(self.server_url + '/users/' + self.username + '/ip',
+                            json={'password': self.password, 'port': self.port})
 
             print("Logged in successfully !")
 
@@ -130,14 +130,14 @@ class Client():
 
         print("")
         self.displaySessions()
-        print("Who do you want to takl with ?")
+        print("Who do you want to talk with ?")
         dest = input("> ")
 
         response = requests.get(self.server_url + '/sessions/' + dest)
         while response.status_code != 200:
             print(f"Sorry, {dest} is not connected right now")
             self.displaySessions()
-            print("Who do you want to takl with ?")
+            print("Who do you want to talk with ?")
             dest = input("> ")
             response = requests.get(self.server_url + '/sessions/' + dest)
 
@@ -145,7 +145,6 @@ class Client():
         data = response.json()
         self.dest_address = f"http://{data['ip']}:{data['port']}"
         self.connected = True
-
 
         print(f"\nStarting chat with {dest} !\n")
 
@@ -165,7 +164,7 @@ class Client():
             if data['msg'] == "/exit":
                 print(f"{data['username']} left the chat.")
             else:
-                print(f"\r{data['username']} > {data['msg']}\n>")
+                print(f"\r{data['username']} > {data['msg']}\n>", end=" ")
 
             return "", 200
 
