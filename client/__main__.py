@@ -7,7 +7,7 @@ from multiprocessing import Process
 import requests
 
 from .msg_server import run_message_server
-from .crypto import *
+from .crypto import encrypt
 
 parser = argparse.ArgumentParser(description='Launch client connected at specified address and port')
 parser.add_argument('--addr', default='localhost', type=str, help='specify name server address (default : localhost)')

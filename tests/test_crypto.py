@@ -2,7 +2,7 @@ import unittest
 from Crypto.PublicKey import RSA
 from Crypto import Random
 
-from client.crypto import *
+from client.crypto import KeyPair, encrypt, decrypt
 
 
 class TestCrypto(unittest.TestCase):
@@ -90,7 +90,7 @@ class TestCrypto(unittest.TestCase):
         # Vérification du déchiffrement
         msg = "abcdefghijklmnopqrstuvwxyzAZERTYUIOP\n1234567890 &éçàèùïüö\t,?;.:/!§%*µ£=+})°]@"
         self.assertEqual(decrypt(self.keypair2048.private, encrypt(self.keypair2048.public, "a")), "a")
-        self.assertEqual(decrypt(self.keypair2048.private, encrypt(self.keypair2048.public, "Hello World !")), "Hello World !")
+        self.assertEqual(decrypt(self.keypair2048.private, encrypt(self.keypair2048.public, "")), "")
         self.assertEqual(decrypt(self.keypair2048.private, encrypt(self.keypair2048.public, msg)), msg)
 
 

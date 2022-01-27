@@ -1,9 +1,7 @@
 import json
-from threading import local
 
 from flask import Flask, request
-import requests
-from .crypto import *
+from .crypto import decrypt
 
 
 def run_message_server(private_key: str, local_port: int):
