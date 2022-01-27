@@ -53,7 +53,7 @@ class Database:
                 keys = KeyPair.generate(2048)
                 cursor = self.conn.cursor()
                 cursor.execute("INSERT INTO `Users` VALUES(?, ?, ?, ?, ?, ?)",
-                               [username, md5_pass.digest(), keys.public, keys.private, ip_address, port])
+                               [username, md5_pass.digest(), keys.private, keys.public, ip_address, port])
                 return True
         return False
 
