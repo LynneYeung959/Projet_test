@@ -128,10 +128,6 @@ class TestServer(unittest.TestCase):
         response = requests.post(self.server_url + "/sessions", json=payload)
         self.assertEqual(response.status_code, 403)
 
-        # unsupported request
-        response = requests.get(self.server_url + "/sessions")
-        self.assertEqual(response.status_code, 405)
-
     def test_destroy_session(self):
         # correct request
         payload = {'password': '2P@ssword'}
