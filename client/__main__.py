@@ -7,6 +7,7 @@ from multiprocessing import Process
 import requests
 
 from .msg_server import run_message_server
+from .crypto import *
 
 parser = argparse.ArgumentParser(description='Launch client connected at specified address and port')
 parser.add_argument('--addr', default='localhost', type=str, help='specify name server address (default : localhost)')
@@ -72,7 +73,7 @@ else:
     print("Logged in successfully !")
 
 # user logged in, run their message server
-Process(target=run_message_server, kwargs={'port': args.local_port}).start()
+Process(target=run_message_server, kwargs={'server_url': server_url, 'my_username': username, 'my_pwd': password, 'local_port': args.local_port}).start()
 time.sleep(3)
 
 # here : print connected users list
@@ -95,7 +96,19 @@ while response.status_code != 200:
 data = response.json()
 dest_address = f"http://{data['ip']}:{data['port']}"
 
+# get recipient public key
+response = requests.get(server_url + '/users/' + dest + '/keys/public')
+while response.status_code != 200:
+    response = requests.get(server_url + '/users/' + dest + '/keys/public')
+data = response.json()
+
+# import key from string
+dest_pub_key = data['key']
+
 # wait for their input
 while True:
     msg = input("\r> ")
-    requests.post(dest_address + '/msg', json={'username': username, 'msg': msg})
+
+    encrypted_msg = encrypt(dest_pub_key, msg)
+
+    requests.post(dest_address + '/msg', json={'username': username, 'msg': encrypted_msg})
