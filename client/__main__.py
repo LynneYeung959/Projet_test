@@ -1,5 +1,4 @@
 import argparse
-from inspect import signature
 import sys
 import time
 
@@ -82,7 +81,8 @@ private_key_data = response.json()
 my_private_key = private_key_data['key']
 
 # user logged in, run their message server
-Process(target=run_message_server, kwargs={'server_url': server_url, 'local_port': args.local_port, 'private_key': my_private_key}).start()
+msg_server_args = {'server_url': server_url, 'local_port': args.local_port, 'private_key': my_private_key}
+Process(target=run_message_server,kwargs=msg_server_args).start()
 time.sleep(3)
 
 # here : print connected users list

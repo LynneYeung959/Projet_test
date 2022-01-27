@@ -1,9 +1,10 @@
 import json
 
 from flask import Flask, request
+import requests
+
 from .crypto import decrypt, verify
 
-import requests
 
 def run_message_server(server_url: str, local_port: int, private_key: str):
     app = Flask(__name__)
@@ -17,11 +18,11 @@ def run_message_server(server_url: str, local_port: int, private_key: str):
         data = json.loads(request.data.decode('utf-8'))
         if 'username' not in data or 'msg' not in data or 'signature' not in data:
             return "", 400
-            
+
         sender = data['username']
         message = data['msg']
         signature = data['signature']
-        
+
         # CHECK SENDER INTERGRITY
         # get sender public key
         response = requests.get(server_url + '/users/' + sender + '/keys/public')

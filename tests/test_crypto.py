@@ -101,8 +101,6 @@ class TestCrypto(unittest.TestCase):
         # public VS private key inversion
         self.assertIsNone(sign(self.keypair2048.public, ""))
         self.assertRaises(TypeError, sign(self.keypair2048.public, ""))
-        self.assertIsNone(verify(self.keypair2048.private, "bla", "blo"))
-        self.assertRaises(TypeError, verify(self.keypair2048.private, "bla", "blo"))
         # implementation
         self.assertEqual(verify(self.keypair2048.public, "", sign(self.keypair2048.private, "")), "OK")
         self.assertEqual(verify(self.keypair2048.public, "a", sign(self.keypair2048.private, "a")), "OK")

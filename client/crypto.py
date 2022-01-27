@@ -1,5 +1,5 @@
 import base64
-from typing import Optional, Type
+from typing import Optional
 
 from Crypto import Random
 from Crypto.Cipher import PKCS1_OAEP
@@ -104,7 +104,7 @@ def verify(public_key: str, message: str, signature: str) -> Optional[str]:
         key = RSA.importKey(public_key)
     except ValueError:
         return None
-    
+
     hasher = SHA256.new(message.encode())
     verifier = PKCS1_v1_5.new(key)
 
