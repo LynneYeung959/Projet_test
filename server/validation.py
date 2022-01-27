@@ -1,6 +1,8 @@
 import re
 import socket
 
+import jsonschema
+
 # Regular expression
 username_regex = re.compile("([A-Za-z0-9]){3,}")
 password_regex = re.compile("(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^A-Za-z0-9]).{8,}")
@@ -33,3 +35,11 @@ def is_ip_valid(ip_address: str) -> bool:
 def is_port_valid(port_nb: int) -> bool:
     """ Check port value validity (should be a number between 1024 and 65535 """
     return 1024 <= port_nb <= 65535
+
+
+def validate_json(data, schema) -> bool:
+    try:
+        jsonschema.validate(data, schema)
+    except jsonschema.exceptions.ValidationError:
+        return False
+    return True

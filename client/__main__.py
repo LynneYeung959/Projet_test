@@ -1,6 +1,4 @@
 import argparse
-import sys
-import time
 
 from multiprocessing import Process
 
@@ -9,11 +7,16 @@ import requests
 from .msg_server import run_message_server
 from .crypto import encrypt, sign
 
+from .client import Client
+
+
+# Command line arguments
 parser = argparse.ArgumentParser(description='Launch client connected at specified address and port')
 parser.add_argument('--addr', default='localhost', type=str, help='specify name server address (default : localhost)')
 parser.add_argument('--port', default=80, type=int, help='specify name server port (default : 80)')
 parser.add_argument('--local-port', default=5000, type=int, help='specify your local server port (default : 5000)')
 args = parser.parse_args()
+
 
 server_url = f"http://{args.addr}:{args.port}"
 
@@ -124,3 +127,8 @@ while True:
     msg_signature = sign(my_private_key, encrypted_msg)
 
     requests.post(dest_address + '/msg', json={'username': username, 'msg': encrypted_msg, 'signature': msg_signature})
+
+# Start client
+client = Client(args.addr, args.port, args.local_port)
+client.run()
+

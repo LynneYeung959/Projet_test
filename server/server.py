@@ -3,6 +3,48 @@ import json
 from flask import Flask, request, jsonify
 
 from . import database
+from .validation import validate_json
+
+
+USER_PASS_PORT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "username": {"type": "string"},
+        "password": {"type": "string"},
+        "port": {"type": "number"},
+    },
+    "required": ["username", "password", "port"],
+    "additionalProperties": False
+}
+
+USER_PASS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "username": {"type": "string"},
+        "password": {"type": "string"},
+    },
+    "required": ["username", "password"],
+    "additionalProperties": False
+}
+
+PASS_PORT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "password": {"type": "string"},
+        "port": {"type": "number"},
+    },
+    "required": ["password", "port"],
+    "additionalProperties": False
+}
+
+PASS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "password": {"type": "string"},
+    },
+    "required": ["password"],
+    "additionalProperties": False
+}
 
 
 def create_app(name: str = __name__, *, db: str) -> Flask:
@@ -23,7 +65,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        if 'username' not in data or 'password' not in data or 'port' not in data:
+        if not validate_json(data, USER_PASS_PORT_SCHEMA):
             return "", 400
 
         username = data['username']
@@ -54,7 +96,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        if 'password' not in data or 'port' not in data:
+        if not validate_json(data, PASS_PORT_SCHEMA):
             return "", 400
 
         if not database.DB.user_login(username, data['password']):
@@ -90,7 +132,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         return jsonify({'key': key}), 200
 
-    # Delete user with username
+    # Delete user with username and password
     @app.route('/users/<string:username>', methods=['DELETE'])
     @database.connect(db)
     def delete_user(username):
@@ -99,7 +141,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        if 'password' not in data:
+        if not validate_json(data, PASS_SCHEMA):
             return "", 400
 
         if not database.DB.user_login(username, data['password']):
@@ -110,6 +152,13 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         return "", 200
 
+    # List users online
+    @app.route('/sessions', methods=['GET'])
+    @database.connect(db)
+    def get_sessions():
+        data = json.dumps(app.client_sessions)
+        return data, 200
+
     # Login user
     @app.route('/sessions', methods=['POST'])
     @database.connect(db)
@@ -119,7 +168,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        if 'username' not in data or 'password' not in data:
+        if not validate_json(data, USER_PASS_SCHEMA):
             return "", 400
 
         if not database.DB.user_login(data['username'], data['password']):
@@ -138,7 +187,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        if 'password' not in data:
+        if not validate_json(data, PASS_SCHEMA):
             return "", 400
 
         if not database.DB.user_login(username, data['password']):
@@ -164,6 +213,7 @@ def create_db(name: str, reset=False):
         if reset:
             database.DB.drop_tables()
         database.DB.create_tables()
+
     init_db()
 
 

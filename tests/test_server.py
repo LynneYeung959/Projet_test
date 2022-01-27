@@ -41,12 +41,12 @@ class TestServer(unittest.TestCase):
 
     def test_add_user_request(self):
         # test correct user insertion
-        payload = {'username': 'albert', 'password': '1MdpV@lide', 'ip': '0.0.0.1', 'port': 1235}
+        payload = {'username': 'albert', 'password': '1MdpV@lide', 'port': 1235}
         response = requests.post(self.server_url + "/users", json=payload)
         self.assertEqual(response.status_code, 200)
 
         # correct request, but non valid password
-        payload = {'username': 'alice', 'password': 'eau pet idée mer veille', 'ip': '0.0.0.14', 'port': 1236}
+        payload = {'username': 'alice', 'password': 'eau pet idée mer veille', 'port': 1236}
         response = requests.post(self.server_url + "/users", json=payload)
         self.assertEqual(response.status_code, 400)
 
@@ -127,10 +127,6 @@ class TestServer(unittest.TestCase):
         payload = {'username': 'paul', 'password': 'P@ssword'}
         response = requests.post(self.server_url + "/sessions", json=payload)
         self.assertEqual(response.status_code, 403)
-
-        # unsupported request
-        response = requests.get(self.server_url + "/sessions")
-        self.assertEqual(response.status_code, 405)
 
     def test_destroy_session(self):
         # correct request

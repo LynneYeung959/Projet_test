@@ -39,6 +39,12 @@ def run_message_server(server_url: str, local_port: int, private_key: str):
 
         # print result
         print(f"\r{data['username']} > {decrypted_msg}\n>")
+
+        if data['msg'] == "/exit":
+            print(f"{data['username']} left the chat.")
+        else:
+            print(f"\r{data['username']} > {data['msg']}\n>")
+
         return "", 200
 
     app.run(port=local_port)
