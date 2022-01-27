@@ -72,8 +72,16 @@ else:
 
     print("Logged in successfully !")
 
+
+# get my private key
+response = requests.get(server_url + '/users/' + username + '/keys/private?secret=' + password)
+while response.status_code != 200:
+    response = requests.get(server_url + '/users/' + username + '/keys/private?secret=' + password)
+private_key_data = response.json()
+my_private_key = private_key_data['key']
+
 # user logged in, run their message server
-Process(target=run_message_server, kwargs={'server_url': server_url, 'my_username': username, 'my_pwd': password, 'local_port': args.local_port}).start()
+Process(target=run_message_server, kwargs={'local_port': args.local_port, 'private_key': my_private_key}).start()
 time.sleep(3)
 
 # here : print connected users list

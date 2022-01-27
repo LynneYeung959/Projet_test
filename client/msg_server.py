@@ -6,7 +6,7 @@ import requests
 from .crypto import *
 
 
-def run_message_server(server_url: str, my_username: str, my_pwd: str, local_port: int):
+def run_message_server(private_key: str, local_port: int):
     app = Flask(__name__)
 
     import logging  # pylint: disable=import-outside-toplevel
@@ -19,14 +19,8 @@ def run_message_server(server_url: str, my_username: str, my_pwd: str, local_por
         if 'username' not in data or 'msg' not in data:
             return "", 400
         # DECRYPT HERE
-        # get my private key
-        response = requests.get(server_url + '/users/' + my_username + '/keys/private?secret=' + my_pwd)
-        while response.status_code != 200:
-            response = requests.get(server_url + '/users/' + my_username + '/keys/private?secret=' + my_pwd)
-        private_key_data = response.json()
-        my_private_key = private_key_data['key']
         # decrypt msg
-        decrypted_msg = decrypt(my_private_key, data['msg'])
+        decrypted_msg = decrypt(private_key, data['msg'])
         # print result
         print(f"\r{data['username']} > {decrypted_msg}\n>")
         return "", 200
