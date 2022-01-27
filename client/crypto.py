@@ -66,6 +66,8 @@ def decrypt(private_key: str, message: str) -> Optional[str]:
     except ValueError:
         return None
 
+    # FAILS ASSERTION HERE
+    assert key.has_private()
     decryptor = PKCS1_OAEP.new(key)
 
     try:
