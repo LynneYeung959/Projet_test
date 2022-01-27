@@ -1,42 +1,29 @@
-import argparse
 import sys
 import os
-import signal
+import signal as sig
 import time
+
 import requests
-from threading import Thread
+import json
+from flask import Flask, request
 from multiprocessing import Process
-
-from .msg_server import run_message_server
-
-def signal_handler(signal, frame):
-    print("User exit programm with Crtl+c")
-    os._exit(1)
-
-class ThreadClient(Thread):
-
-    def run(self):
-        client = Client()
-        client.run()
+import threading
 
 class Client():
 
-    def __init__(self):
-        # Command line arguments
-        parser = argparse.ArgumentParser(description='Launch client connected at specified address and port')
-        parser.add_argument('--addr', default='localhost', type=str, help='specify name server address (default : localhost)')
-        parser.add_argument('--port', default=80, type=int, help='specify name server port (default : 80)')
-        parser.add_argument('--local-port', default=5000, type=int, help='specify your local server port (default : 5000)')
-        args = parser.parse_args()
-
-        self.server_addr = args.addr
-        self.server_port = args.port
-        self.port = args.local_port
+    def __init__(self, addr, port, local_port):
+        
+        self.server_addr = addr
+        self.server_port = port
+        self.port = local_port
         self.server_url = f"http://{self.server_addr}:{self.server_port}"
 
         self.ip: str
         self.username: str
         self.password: str
+        self.dest_address: str
+
+        self.connected = False
 
     def checkServer(self):
         # Check if server address exists and is alive
@@ -48,20 +35,60 @@ class Client():
             print(f"Failed to connect to {self.server_url} !")
             os._exit(1)
 
-    def run(self):
+    def displayBanner(self):
+        print("")
+        print("================================================================================")
+        print("")
+        print("$$\\       $$$$$$$$\\       $$$$$$$\\ $$\\     $$\\  $$$$$$\\  $$$$$$$$\\  $$$$$$\\  $$\\   $$\\ ")
+        print("$$ |      $$  _____|      $$  __$$\\\\$$\\   $$  |$$  __$$\\ $$  _____|$$  __$$\\ $$$\\  $$ |")
+        print("$$ |      $$ |            $$ |  $$ |\\$$\\ $$  / $$ /  \\__|$$ |      $$ /  $$ |$$$$\\ $$ |")
+        print("$$ |      $$$$$\\          $$$$$$$  | \\$$$$  /  $$ |$$$$\\ $$$$$\\    $$ |  $$ |$$ $$\\$$ |")
+        print("$$ |      $$  __|         $$  ____/   \\$$  /   $$ |\\_$$ |$$  __|   $$ |  $$ |$$ \\$$$$ |")
+        print("$$ |      $$ |            $$ |         $$ |    $$ |  $$ |$$ |      $$ |  $$ |$$ |\\$$$ |")
+        print("$$$$$$$$\\ $$$$$$$$\\       $$ |         $$ |    \\$$$$$$  |$$$$$$$$\\  $$$$$$  |$$ | \\$$ |")
+        print("\\________|\\________|      \\__|         \\__|     \\______/ \\________| \\______/ \\__|  \\__|")
+        print("                                                                                       ")
+        print("                                                                                       ")
+        print("                                                                                       ")
+        print("$$\\    $$\\  $$$$$$\\ $$\\     $$\\  $$$$$$\\   $$$$$$\\  $$$$$$$$\\ $$\\   $$\\ $$$$$$$\\       ")
+        print("$$ |   $$ |$$  __$$\\\\$$\\   $$  |$$  __$$\\ $$  __$$\\ $$  _____|$$ |  $$ |$$  __$$\\      ")
+        print("$$ |   $$ |$$ /  $$ |\\$$\\ $$  / $$ /  $$ |$$ /  \\__|$$ |      $$ |  $$ |$$ |  $$ |     ")
+        print("\\$$\\  $$  |$$ |  $$ | \\$$$$  /  $$$$$$$$ |$$ |$$$$\\ $$$$$\\    $$ |  $$ |$$$$$$$  |     ")
+        print(" \\$$\\$$  / $$ |  $$ |  \\$$  /   $$  __$$ |$$ |\\_$$ |$$  __|   $$ |  $$ |$$  __$$<      ")
+        print("  \\$$$  /  $$ |  $$ |   $$ |    $$ |  $$ |$$ |  $$ |$$ |      $$ |  $$ |$$ |  $$ |     ")
+        print("   \\$  /    $$$$$$  |   $$ |    $$ |  $$ |\\$$$$$$  |$$$$$$$$\\ \\$$$$$$  |$$ |  $$ |     ")
+        print("    \\_/     \\______/    \\__|    \\__|  \\__| \\______/ \\________| \\______/ \\__|  \\__|     ")
+        print("")
+        print("====================================================================================")
+        print("\n\n")
+        print("Welcome to this very, very secure chat app!\n")
 
-        self.checkServer()
+    def displaySessions(self):
 
-        print("Your username (at least 3 characters, only letters or digits) : ")
+        print("Users online :")
+        response = requests.get(self.server_url + '/sessions')
+        user_list = response.json()
+        for user in user_list:
+            if user == self.username:
+                print("* " + user + " (You)")
+            else:
+                print("* " + user)
+        print("")
+
+    def loginMenu(self):
+
+        print("Username :")
         self.username = input("> ")
         # check if user exists by getting its IP from server
         get_ip_response = requests.get(self.server_url + '/users/' + self.username + '/ip')
 
-        # connect and login user
+        # New username : Account creation
         if get_ip_response.status_code == 404:
+            print(f"New user detected.\n")
             print(f"Welcome {self.username} !\n"
                   f"Create your account by entering a new password\n"
-                  f"(at least 8 characters, at least 1 uppercase, 1 digit and 1 special character)")
+                  f"(at least 8 characters, 1 uppercase, 1 digit and 1 special character)")
+
             self.password = input("> ")
             data = {'username': self.username, 'password': self.password, 'port': self.port}
             response = requests.post(self.server_url + '/users', json=data)
@@ -75,9 +102,10 @@ class Client():
             response = requests.post(self.server_url + '/sessions', json=data)
             print("Account created successfully !")
 
+        # Known usename : sign in
         else:
             print(f"Welcome back {self.username} !\n"
-                  f"Please enter your password to log in :")
+                  f"Password :")
             self.password = input("> ")
             data = {'username': self.username, 'password': self.password, 'port': self.port}
             response = requests.post(self.server_url + '/sessions', json=data)
@@ -94,61 +122,89 @@ class Client():
 
             print("Logged in successfully !")
 
-        # user logged in, run their message server
-        Process(target=run_message_server, kwargs={'port': self.port}).start()
-        time.sleep(3)
-
-        # print connected users list
-        print("Users online :")
-        response = requests.get(self.server_url + '/sessions')
-        user_list = response.json()
-        for user in user_list:
-            if user == self.username:
-                print("* " + user + " (You)")
-            else:
-                print("* " + user)
+    def sessionsMenu(self):
 
         print("")
+        self.displaySessions()
+        print("Who do you want to takl with ?")
+        dest = input("> ")
 
-        dest = input("You want to talk with : ")
         response = requests.get(self.server_url + '/sessions/' + dest)
-
         while response.status_code != 200:
-            print(f"{dest} is not connected right now")
-            # here : print connected users list again to see if someone just connected
-            dest = input("You want to talk with : ")
+            print(f"Sorry, {dest} is not connected right now")
+            self.displaySessions()
+            print("Who do you want to takl with ?")
+            dest = input("> ")
             response = requests.get(self.server_url + '/sessions/' + dest)
 
         response = requests.get(self.server_url + '/users/' + dest + '/ip')
-
-        while response.status_code != 200:
-            print(f'User {dest} is not connected !')
-            dest = input("You want to talk with : ")
-            response = requests.get(self.server_url + '/users/' + dest + '/ip')
-
         data = response.json()
-        dest_address = f"http://{data['ip']}:{data['port']}"
+        self.dest_address = f"http://{data['ip']}:{data['port']}"
+        self.connected = True
 
+
+        print(f"\nStarting chat with {dest} !\n")
+
+    def messageServer(self):
+        app = Flask(__name__)
+
+        import logging  # pylint: disable=import-outside-toplevel
+        log = logging.getLogger('werkzeug')
+        log.setLevel(logging.ERROR)
+
+        @app.route('/msg', methods=['POST'])
+        def on_msg():
+            data = json.loads(request.data.decode('utf-8'))
+            if 'username' not in data or 'msg' not in data:
+                return "", 400
+
+            if (data['msg'] == "/exit"):
+                print(f"{data['username']} left the chat.")
+            else:
+                print(f"\r{data['username']} > {data['msg']}\n>")
+
+            return "", 200
+
+        app.run(port=self.port)
+
+    def chatLoop(self):
         # wait for their input
         while True:
             msg = input("\r> ")
 
             if (msg == "/exit"):
-                requests.delete(self.server_url + "/sessions/" + self.username, json={'password': self.password})
-                requests.post(dest_address + '/msg', json={'username': self.username, 'msg': msg})
+                self.exitChat()
                 os._exit(1)
-
             elif (msg == "/list"):
-                # print connected users list
-                print("Users online :")
-                response = requests.get(self.server_url + '/sessions')
-                user_list = response.json()
-                for user in user_list:
-                    if user == self.username:
-                        print("* " + user + " (You)")
-                    else:
-                        print("* " + user)
-                print("")
-
+                self.displaySessions()
             else:
-                requests.post(dest_address + '/msg', json={'username': self.username, 'msg': msg})
+                requests.post(self.dest_address + '/msg', json={'username': self.username, 'msg': msg})
+
+    def signal_handler(self, signal, frame):
+        print("\nUser exit programm with Crtl+c")
+        if (self.connected):
+            self.exitChat()
+        os._exit(1)
+
+    def exitChat(self, msg="/exit"):
+        requests.delete(self.server_url + "/sessions/" + self.username, json={'password': self.password})
+        requests.post(self.dest_address + '/msg', json={'username': self.username, 'msg': msg})
+        self.msgServProc.kill()
+
+    def run(self):
+
+        # Signal to catch Crtl+C from client
+        sig.signal(sig.SIGINT, self.signal_handler)
+        signal_thread = threading.Event()
+
+        self.checkServer()
+        self.displayBanner()
+        self.loginMenu()
+
+        # Run message server
+        self.msgServProc = Process(target=self.messageServer)
+        self.msgServProc.start()
+        time.sleep(1)
+
+        self.sessionsMenu()
+        self.chatLoop()
