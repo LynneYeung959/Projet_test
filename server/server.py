@@ -3,25 +3,49 @@ import json
 from flask import Flask, request, jsonify
 
 from . import database
+from .validation import validate_json
 
-from jsonschema import validate, validationError
 
-schema = {
-    "type" : "object",
-    "properties" : {
-        "username" :{
-            "type" : "string",
-            "minLength":3},
-        "password" : {
-            "type" : "string",
-            "minLength":8,
-            "pattern": "(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^A-Za-z0-9]).{8,}"},
-        "port" : {
-            "type" : "number",
-            "minimum":1024,
-            "maximum":65535},
+USER_PASS_PORT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "username": {"type": "string"},
+        "password": {"type": "string"},
+        "port": {"type": "number"},
     },
+    "required": ["username", "password", "port"],
+    "additionalProperties": False
 }
+
+USER_PASS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "username": {"type": "string"},
+        "password": {"type": "string"},
+    },
+    "required": ["username", "password"],
+    "additionalProperties": False
+}
+
+PASS_PORT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "password": {"type": "string"},
+        "port": {"type": "number"},
+    },
+    "required": ["password", "port"],
+    "additionalProperties": False
+}
+
+PASS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "password": {"type": "string"},
+    },
+    "required": ["password"],
+    "additionalProperties": False
+}
+
 
 def create_app(name: str = __name__, *, db: str) -> Flask:
     app = Flask(name)
@@ -41,8 +65,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        valid = validate(data,schema)
-        if(not valid):
+        if not validate_json(data, USER_PASS_PORT_SCHEMA):
             return "", 400
 
         username = data['username']
@@ -73,8 +96,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        valid = validate(data,schema)
-        if(not valid):
+        if not validate_json(data, PASS_PORT_SCHEMA):
             return "", 400
 
         if not database.DB.user_login(username, data['password']):
@@ -110,7 +132,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         return jsonify({'key': key}), 200
 
-    # Delete user with username
+    # Delete user with username and password
     @app.route('/users/<string:username>', methods=['DELETE'])
     @database.connect(db)
     def delete_user(username):
@@ -119,8 +141,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        valid = validate(data,schema)
-        if(not valid):
+        if not validate_json(data, PASS_SCHEMA):
             return "", 400
 
         if not database.DB.user_login(username, data['password']):
@@ -147,8 +168,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        valid = validate(data,schema)
-        if(not valid):
+        if not validate_json(data, USER_PASS_SCHEMA):
             return "", 400
 
         if not database.DB.user_login(data['username'], data['password']):
@@ -167,8 +187,7 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        valid = validate(data,schema)
-        if(not valid):
+        if not validate_json(data, PASS_SCHEMA):
             return "", 400
 
         if not database.DB.user_login(username, data['password']):
@@ -194,6 +213,7 @@ def create_db(name: str, reset=False):
         if reset:
             database.DB.drop_tables()
         database.DB.create_tables()
+
     init_db()
 
 
