@@ -16,7 +16,7 @@ def run_message_server(port: int):
         if 'username' not in data or 'msg' not in data:
             return "", 400
 
-        if (data['msg'] == "/exit"):
+        if data['msg'] == "/exit":
             print(f"{data['username']} left the chat.")
         else:
             print(f"\r{data['username']} > {data['msg']}\n>")

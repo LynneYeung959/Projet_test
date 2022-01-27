@@ -87,7 +87,7 @@ class Client():
 
         # New username : Account creation
         if get_ip_response.status_code == 404:
-            print(f"New user detected.\n")
+            print("New user detected.\n")
             print(f"Welcome {self.username} !\n"
                   f"Create your account by entering a new password\n"
                   f"(at least 8 characters, 1 uppercase, 1 digit and 1 special character)")
