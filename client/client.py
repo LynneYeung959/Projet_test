@@ -3,16 +3,17 @@ import os
 import signal as sig
 import time
 
-import requests
 import json
-from flask import Flask, request
 from multiprocessing import Process
 import threading
+import requests
+from flask import Flask, request
+
 
 class Client():
 
     def __init__(self, addr, port, local_port):
-        
+
         self.server_addr = addr
         self.server_port = port
         self.port = local_port
@@ -33,11 +34,11 @@ class Client():
                 print(f"Server at {self.server_url} is down !")
         except requests.exceptions.ConnectionError:
             print(f"Failed to connect to {self.server_url} !")
-            os._exit(1)
+            sys.exit(0)
 
     def displayBanner(self):
         print("")
-        print("================================================================================")
+        print("=======================================================================================")
         print("")
         print("$$\\       $$$$$$$$\\       $$$$$$$\\ $$\\     $$\\  $$$$$$\\  $$$$$$$$\\  $$$$$$\\  $$\\   $$\\ ")
         print("$$ |      $$  _____|      $$  __$$\\\\$$\\   $$  |$$  __$$\\ $$  _____|$$  __$$\\ $$$\\  $$ |")
@@ -59,9 +60,11 @@ class Client():
         print("   \\$  /    $$$$$$  |   $$ |    $$ |  $$ |\\$$$$$$  |$$$$$$$$\\ \\$$$$$$  |$$ |  $$ |     ")
         print("    \\_/     \\______/    \\__|    \\__|  \\__| \\______/ \\________| \\______/ \\__|  \\__|     ")
         print("")
-        print("====================================================================================")
+        print("===========================================================================================")
         print("\n\n")
         print("Welcome to this very, very secure chat app!\n")
+        print(f"Server adress : {self.server_url}")
+        print(f"Local port : {self.port}")
 
     def displaySessions(self):
 
@@ -118,7 +121,8 @@ class Client():
 
             get_ip_data = get_ip_response.json()
             if get_ip_data['port'] != self.port:
-                requests.put(self.server_url + '/users/' + self.username + '/ip', json={'password': self.password, 'port': self.port})
+                requests.put(self.server_url + '/users/' + self.username + '/ip', \
+                json={'password': self.password, 'port': self.port})
 
             print("Logged in successfully !")
 
@@ -158,7 +162,7 @@ class Client():
             if 'username' not in data or 'msg' not in data:
                 return "", 400
 
-            if (data['msg'] == "/exit"):
+            if data['msg'] == "/exit":
                 print(f"{data['username']} left the chat.")
             else:
                 print(f"\r{data['username']} > {data['msg']}\n>")
@@ -172,17 +176,17 @@ class Client():
         while True:
             msg = input("\r> ")
 
-            if (msg == "/exit"):
+            if msg == "/exit":
                 self.exitChat()
                 os._exit(1)
-            elif (msg == "/list"):
+            elif msg == "/list":
                 self.displaySessions()
             else:
                 requests.post(self.dest_address + '/msg', json={'username': self.username, 'msg': msg})
 
     def signal_handler(self, signal, frame):
         print("\nUser exit programm with Crtl+c")
-        if (self.connected):
+        if self.connected:
             self.exitChat()
         os._exit(1)
 
