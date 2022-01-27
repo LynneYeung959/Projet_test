@@ -1,10 +1,11 @@
 import base64
-from typing import Optional
+from typing import Optional, Type
 
 from Crypto import Random
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
-
+from Crypto.Hash import SHA256
+from Crypto.Signature import PKCS1_v1_5
 
 class KeyPair:
     @staticmethod
@@ -73,7 +74,43 @@ def decrypt(private_key: str, message: str) -> Optional[str]:
     except ValueError:
         return None
 
+
     # Convert to text (string)
     message_str = message.decode()
 
     return message_str
+
+
+def sign(private_key: str, message: str) -> Optional[str]:
+
+    try:
+        key = RSA.importKey(private_key)
+    except ValueError:
+        return None
+
+    hasher = SHA256.new(message.encode())
+    signer = PKCS1_v1_5.new(key)
+
+    try:
+        signature = base64.b64encode(signer.sign(hasher))
+    except TypeError:
+        return None
+
+    return signature.decode()
+
+def verify(public_key: str, message: str, signature: str) -> Optional[str]:
+
+    try:
+        key = RSA.importKey(public_key)
+    except ValueError:
+        return None
+    
+    hasher = SHA256.new(message.encode())
+    verifier = PKCS1_v1_5.new(key)
+
+    try:
+        verifier.verify(hasher, base64.b64decode(signature.encode()))
+    except ValueError:
+        return None
+
+    return "OK"
