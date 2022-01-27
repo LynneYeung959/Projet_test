@@ -4,6 +4,24 @@ from flask import Flask, request, jsonify
 
 from . import database
 
+from jsonschema import validate, validationError
+
+schema = {
+    "type" : "object",
+    "properties" : {
+        "username" :{
+            "type" : "string",
+            "minLength":3},
+        "password" : {
+            "type" : "string",
+            "minLength":8,
+            "pattern": "(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^A-Za-z0-9]).{8,}"},
+        "port" : {
+            "type" : "number",
+            "minimum":1024,
+            "maximum":65535},
+    },
+}
 
 def create_app(name: str = __name__, *, db: str) -> Flask:
     app = Flask(name)
@@ -23,8 +41,10 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        if 'username' not in data or 'password' not in data or 'port' not in data:
+        valid = validate(data,schema)
+        if(not valid){
             return "", 400
+        }
 
         username = data['username']
         password = data['password']
@@ -54,8 +74,10 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        if 'password' not in data or 'port' not in data:
+        valid = validate(data,schema)
+        if(not valid){
             return "", 400
+        }
 
         if not database.DB.user_login(username, data['password']):
             return "", 403
@@ -99,8 +121,10 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        if 'password' not in data:
+        valid = validate(data,schema)
+        if(not valid){
             return "", 400
+        }
 
         if not database.DB.user_login(username, data['password']):
             return "", 403
@@ -126,8 +150,10 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        if 'username' not in data or 'password' not in data:
+        valid = validate(data,schema)
+        if(not valid){
             return "", 400
+        }
 
         if not database.DB.user_login(data['username'], data['password']):
             return "", 403
@@ -145,8 +171,10 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
 
         data = json.loads(request.data.decode('utf-8'))
 
-        if 'password' not in data:
+        valid = validate(data,schema)
+        if(not valid){
             return "", 400
+        }
 
         if not database.DB.user_login(username, data['password']):
             return "", 403
