@@ -1,5 +1,4 @@
 import sys
-import os
 import signal as sig
 import time
 
@@ -23,6 +22,8 @@ class Client():
         self.username: str
         self.password: str
         self.dest_address: str
+
+        self.msgServProc: Process
 
         self.connected = False
 
@@ -177,17 +178,17 @@ class Client():
 
             if msg == "/exit":
                 self.exitChat()
-                os._exit(1)
+                sys.exit(0)
             elif msg == "/list":
                 self.displaySessions()
             else:
                 requests.post(self.dest_address + '/msg', json={'username': self.username, 'msg': msg})
 
-    def signal_handler(self, signal, frame):
+    def signal_handler(self, signal, frame):  # pylint: disable=unused-argumentpy -m client --gui
         print("\nUser exit programm with Crtl+c")
         if self.connected:
             self.exitChat()
-        os._exit(1)
+        sys.exit(0)
 
     def exitChat(self, msg="/exit"):
         requests.delete(self.server_url + "/sessions/" + self.username, json={'password': self.password})
@@ -198,7 +199,7 @@ class Client():
 
         # Signal to catch Crtl+C from client
         sig.signal(sig.SIGINT, self.signal_handler)
-        signal_thread = threading.Event()
+        threading.Event()
 
         self.checkServer()
         self.displayBanner()

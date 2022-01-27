@@ -88,6 +88,7 @@ class Database:
         result = cursor.fetchone()
         return result['publickey']
 
+
 DB:  Optional[Database] = None
 
 
