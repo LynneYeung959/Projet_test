@@ -42,9 +42,8 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
         data = json.loads(request.data.decode('utf-8'))
 
         valid = validate(data,schema)
-        if(not valid){
+        if(not valid):
             return "", 400
-        }
 
         username = data['username']
         password = data['password']
@@ -75,9 +74,8 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
         data = json.loads(request.data.decode('utf-8'))
 
         valid = validate(data,schema)
-        if(not valid){
+        if(not valid):
             return "", 400
-        }
 
         if not database.DB.user_login(username, data['password']):
             return "", 403
@@ -122,9 +120,8 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
         data = json.loads(request.data.decode('utf-8'))
 
         valid = validate(data,schema)
-        if(not valid){
+        if(not valid):
             return "", 400
-        }
 
         if not database.DB.user_login(username, data['password']):
             return "", 403
@@ -151,9 +148,8 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
         data = json.loads(request.data.decode('utf-8'))
 
         valid = validate(data,schema)
-        if(not valid){
+        if(not valid):
             return "", 400
-        }
 
         if not database.DB.user_login(data['username'], data['password']):
             return "", 403
@@ -172,9 +168,8 @@ def create_app(name: str = __name__, *, db: str) -> Flask:
         data = json.loads(request.data.decode('utf-8'))
 
         valid = validate(data,schema)
-        if(not valid){
+        if(not valid):
             return "", 400
-        }
 
         if not database.DB.user_login(username, data['password']):
             return "", 403
