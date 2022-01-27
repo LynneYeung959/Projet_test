@@ -7,6 +7,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA256
 from Crypto.Signature import PKCS1_v1_5
 
+
 class KeyPair:
     @staticmethod
     def generate(size: int):
@@ -54,6 +55,7 @@ def encrypt(public_key: str, message: str) -> Optional[str]:
 
     return msg_crypt_str
 
+
 def decrypt(private_key: str, message: str) -> Optional[str]:
     """
     Returns the plain text message decrypted using the private key
@@ -74,7 +76,6 @@ def decrypt(private_key: str, message: str) -> Optional[str]:
     except ValueError:
         return None
 
-
     # Convert to text (string)
     message_str = message.decode()
 
@@ -82,7 +83,6 @@ def decrypt(private_key: str, message: str) -> Optional[str]:
 
 
 def sign(private_key: str, message: str) -> Optional[str]:
-
     try:
         key = RSA.importKey(private_key)
     except ValueError:
@@ -98,19 +98,19 @@ def sign(private_key: str, message: str) -> Optional[str]:
 
     return signature.decode()
 
-def verify(public_key: str, message: str, signature: str) -> Optional[str]:
 
+def verify(public_key: str, message: str, signature: str) -> bool:
     try:
         key = RSA.importKey(public_key)
     except ValueError:
-        return None
+        return False
 
     hasher = SHA256.new(message.encode())
     verifier = PKCS1_v1_5.new(key)
 
     try:
-        verifier.verify(hasher, base64.b64decode(signature.encode()))
+        verifier.verify(hasher, base64.b64decode(signature.encode()))  # pylint: disable=not-callable
     except ValueError:
-        return None
+        return False
 
-    return "OK"
+    return True

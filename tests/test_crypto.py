@@ -102,10 +102,13 @@ class TestCrypto(unittest.TestCase):
         self.assertIsNone(sign(self.keypair2048.public, ""))
         self.assertRaises(TypeError, sign(self.keypair2048.public, ""))
         # implementation
-        self.assertEqual(verify(self.keypair2048.public, "", sign(self.keypair2048.private, "")), "OK")
-        self.assertEqual(verify(self.keypair2048.public, "a", sign(self.keypair2048.private, "a")), "OK")
-            # we don't care about message integrity, just check sender integrity
-        self.assertEqual(verify(self.keypair2048.public, "BONJOUR !", sign(self.keypair2048.private, "bonjour!")), "OK")
+        self.assertTrue(verify(self.keypair2048.public, "", sign(self.keypair2048.private, "")))
+        self.assertTrue(verify(self.keypair2048.public, "a", sign(self.keypair2048.private, "a")))
+        # we don't care about message integrity, just check sender integrity
+        self.assertTrue(verify(self.keypair2048.public, "BONJOUR !", sign(self.keypair2048.private, "bonjour!")))
+        # bugged TEST AAAH
+        self.assertTrue(verify(self.keypair2048.public, "BONJOUR !", sign(self.keypair1024.private, "bonjour!")))
+
 
 if __name__ == '__main__':
     unittest.main()
